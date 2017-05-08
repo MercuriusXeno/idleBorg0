@@ -1,0 +1,23 @@
+<h2>Available:</h2>
+<div class="row">
+    <div class="col-sm-1" ng-show="(science.count > 0 || getScienceCost(science) <= data * 5) && science.count < science.max"
+    ng-repeat="science in scienceMeta.items">
+
+        <a ng-enabled="canBuyScience(science)" class="round-borders btn btn-sm btn-primary btn-science"
+           ng-click="buyScience(science)" ng-class="(!canBuyScience(science) ? 'btn-disabled' : 'btn-enabled')"
+           tooltips tooltip-template="{{ getNameForTooltip(science.name) }}: ({{ science.count }}/{{ science.max }}) {{ science.description }}"
+           tooltip-side="right" tooltip-speed="fast" tooltip-class="tooltip-md">
+                <i class="{{ science.icon + ' btn-science-image ' + getCanBuyColor('science', science) }}">{{ science.iconFontID }}</i>
+        </a>
+        <div style="font-size: 24px; margin-top: 17.5%" ng-hide="science.count === science.max">
+            <span class="fg-gold" >Cost</span>: <br>{{ display(getScienceCost(science)) }}B
+        </div>
+    </div>
+</div>
+<h2>Purchased:</h2>
+<div ng-show="science.count === science.max"  ng-repeat="science in scienceMeta.items" class="margin-5">
+    <div class="round-borders btn btn-sm btn-primary btn-science-max" tooltips tooltip-template="{{ getNameForTooltip(science.name) }}: ({{ science.count }}/{{ science.max }}) {{ science.description }}"
+         tooltip-side="right" tooltip-speed="fast" tooltip-class="tooltip-md">
+            <i class="{{ science.icon + ' btn-science-image'}}">{{ science.iconFontID }}</i>
+    </div>
+</div>

@@ -1,0 +1,316 @@
+html {
+    background-color: #0A0A0A;
+    background-image: -webkit-linear-gradient(0deg,rgb(0,60,60) 0%,rgb(0,0,0) 100%);
+    background-image: linear-gradient(0deg,rgb(0,60,60) 0%,rgb(0,0,0) 100%);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100%;
+}
+
+body {
+    margin: 0 auto;
+    padding: 2pt 2pt 2pt;
+    max-width: 100%;
+    font-family: "Lucida Console", Monaco, monospace;
+    font-size: 16pt;
+    line-height: 16pt;
+    color: #ffffff;
+    background: transparent;
+    box-shadow: 0 0 2pt rgba(0, 0, 0, 0.06);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #ffffff;
+    font-weight: 600;
+    line-height: 1.3em;
+}
+
+h2 {
+    margin-top: 1.3em;
+}
+
+a {
+    color: #0083e8;
+}
+
+b, strong {
+    font-weight: 600;
+}
+
+samp {
+    display: none;
+}
+
+img {
+    -webkit-animation: colorize 2s cubic-bezier(0, 0, .78, .36) 1;
+    animation: colorize 2s cubic-bezier(0, 0, .78, .36) 1;
+    background: transparent;
+    border: 2pt solid rgba(0, 0, 0, 0.12);
+    border-radius: 4pt;
+    display: block;
+    margin: 2pt auto;
+    max-width: 99%;
+}
+
+@-webkit-keyframes colorize {
+    0% {
+        -webkit-filter: grayscale(100%);
+    }
+    100% {
+        -webkit-filter: grayscale(0%);
+    }
+}
+
+@keyframes colorize {
+    0% {
+        filter: grayscale(100%);
+    }
+    100% {
+        filter: grayscale(0%);
+    }
+}
+
+.btn-tab {
+    font-size: 30pt;
+    min-width: 25pt;
+    min-height: 25pt;
+    margin-left: 45pt;
+    margin-right: 45pt;
+    padding: 20pt;
+    border: 2pt solid slategray;
+    border-radius: 15pt;
+}
+
+.btn-tab:hover {
+    color: #dddddd;
+    background-color: #309090;
+    border-color: #303030;
+    border: 2pt solid white;
+    border-radius: 15pt;
+
+}
+
+.btn-primary {
+    border-color: #303030;
+    text-shadow: 1pt 1pt 1pt rgba(0,0,0,0.5);
+}
+
+.btn-primary:hover {
+    color: #dddddd;
+    background-color: #309090;
+    border-color: #303030;
+    text-shadow: 2pt 2pt 2pt rgba(0,0,0,0.5);
+}
+
+.btn-primary.btn-enabled:hover {
+    background-color: limegreen;
+    text-shadow: 3pt 3pt 3pt rgba(0,0,0,0.5);
+    color: green;
+}
+
+.btn-enabled {
+    background-color: #119911;
+    text-shadow: 3pt 3pt 3pt rgba(0,0,0,0.5);
+    color: green;
+}
+
+.btn-disabled {
+    background-color: #909090;
+    color: #303030
+}
+
+.btn-disabled:hover {
+    background-color: #909090;
+    color: #303030
+}
+
+.btn-device {
+    font-size: 48pt;
+    cursor: pointer;
+    margin-top: 5pt;
+}
+
+.progress {
+  height: 3em;
+  i { line-height: 3.5em; }
+}
+
+.progress-bar {
+  transition: width 1s ease-in-out;
+}
+
+.gauge-risk-container {
+    max-height: 64pt;
+    max-width: 64pt;
+}
+
+.risk-gauge {
+    stroke:red;
+    fill:red;
+    font-size: 11pt;
+    font-weight:100;
+}
+
+.btn-device-count {
+    font-size:16pt;
+    font-weight: 600;
+    position:absolute;
+    top: 140%;
+    color: white;
+    right: 10%;
+    pointer-events: none;
+}
+
+.btn-device-buy {
+    font-size:12pt;
+    font-weight: 600;
+    position:absolute;
+    bottom: 130%;
+    color: gold;
+    left: 5%;
+    pointer-events: none;
+}
+
+.btn-device-cost {
+    font-size:10pt;
+    font-weight: 600;
+    position:relative;
+    bottom: 10%;
+    color: gold;
+    left: 5%;
+    pointer-events: none;
+}
+
+.btn-science {
+    cursor: pointer;
+}
+
+.btn-science-max {
+    background-color: gold;
+    color: orange;
+}
+
+.btn-science-image {
+    font-size: 48pt;
+}
+
+.btn-upgrade {
+    margin-left: 5px;
+    padding-left: 5px;
+    margin-right: 5px;
+    padding-right: 5px;
+    margin-top: 5px;
+    padding-top: 5px;
+    margin-bottom: 5px;
+    padding-bottom: 0px;
+    cursor: pointer;
+}
+
+.btn-upgrade-image {
+    font-size: 16pt;
+}
+
+.btn-ghost {
+    background-color: transparent;
+    border-style: dotted !important;
+}
+
+.tooltip-md {
+    font-size: 14pt;
+    min-width: 200pt;
+    pointer-events:none;
+}
+
+.tooltip-name {
+    color: gold;
+}
+
+.tooltip-cost {
+    color: gold;
+}
+
+.round-borders {
+    border: 2pt solid white;
+    border-radius: 8pt;
+}
+
+.round-borders-inset {
+    border: 4pt inset white;
+    border-color: white;
+    border-radius: 8pt;
+}
+
+.btn-tab-selected {
+    background-color: gold;
+}
+
+.margin-5 {
+    margin: 5pt;
+}
+
+.fg-orange {
+    color: orange;
+}
+
+.fg-cyan {
+    color: cyan;
+}
+
+.fg-red {
+    color: red;
+}
+
+.fg-darkgreen {
+    color: darkgreen;
+}
+
+.fg-gold {
+    color: gold;
+}
+
+.fg-white {
+    color: white;
+}
+
+.fg-limegreen {
+    color: limegreen;
+}
+
+.fg-gray {
+    color: gray;
+}
+
+.bg-orange {
+    background-color: orange;
+}
+
+.bg-cyan {
+    background-color: cyan;
+}
+
+.bg-red {
+    background-color: red;
+}
+
+.bg-darkgreen {
+    background-color: darkgreen;
+}
+
+.bg-gold {
+    background-color: gold;
+}
+
+.bg-white {
+    background-color: white;
+}
+
+.bg-limegreen {
+    background-color: limegreen;
+}
+
+.bg-gray {
+    background-color: gray;
+}
+
+.font-md {
+    font-size: 12pt;
+}
