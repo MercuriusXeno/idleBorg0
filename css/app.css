@@ -18,6 +18,12 @@ body {
     box-shadow: 0 0 2pt rgba(0, 0, 0, 0.06);
 }
 
+span {
+    font-family: "Lucida Console", Monaco, monospace;
+    font-size: 16pt;
+    line-height: 16pt;
+}
+
 h1, h2, h3, h4, h5, h6 {
     color: #ffffff;
     font-weight: 600;
@@ -70,12 +76,8 @@ img {
 }
 
 .btn-tab {
-    font-size: 30pt;
-    min-width: 25pt;
-    min-height: 25pt;
-    margin-left: 45pt;
-    margin-right: 45pt;
-    padding: 20pt;
+    font-size: 15pt;
+    padding: 10pt;
     border: 2pt solid slategray;
     border-radius: 15pt;
 }
@@ -321,4 +323,22 @@ img {
 
 .font-md {
     font-size: 12pt;
+}
+
+.progress-label-left {
+    position: absolute;
+    left: 15%;
+    top: 25%
+    top: 25%
+    transform: translate(-50%, -50%);
+    font-weight: bold;
+}
+
+.progress-label-right {
+    position: absolute;
+    left: 65%;
+    top: 25%
+    top: 25%
+    transform: translate(-50%, -50%);
+    font-weight: bold;
 }
