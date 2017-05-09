@@ -25,13 +25,13 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         compressionReq.inject(compressionReq.items.length, 'device', device.id, 10);//10 mobiles
         compressionReq.inject(compressionReq.items.length, 'science', 0, 1);//compression
         //this generates 8 stock templates, 1 for each device, and gives them names.
-        newUpgrades.inject(newUpgrades.items.length, device.id, 'Compression', 'Increase storage and data rates.', 'material-icons', 'call_merge', 100 * device.cpuCostBase, 1.2, compressionReq.items);
+        newUpgrades.inject(newUpgrades.items.length, device.id, 'Compression', 'Increase storage and data rates by 5% per level.', 'material-icons', 'call_merge', 100 * device.cpuCostBase, 1.2, compressionReq.items);
 
         networkReq.items = [];
         networkReq.inject = function (id, type, ref, value) { networkReq.items.push({id: id, type: type, ref: ref, value: value}); };
         networkReq.inject(networkReq.items.length, 'device', device.id, 25);
         networkReq.inject(networkReq.items.length, 'science', 1, 1);//networking
-        newUpgrades.inject(newUpgrades.items.length, device.id, 'Optimization', 'Combat the negative effects of networks.', 'material-icons', 'call_split', 25e2 * device.cpuCostBase, 1.3, networkReq.items);
+        newUpgrades.inject(newUpgrades.items.length, device.id, 'Optimization', 'Use clustering to combat network loss by 5% per level.', 'material-icons', 'call_split', 25e2 * device.cpuCostBase, 1.3, networkReq.items);
 
         obfuscateReq.items = [];
         obfuscateReq.inject = function (id, type, ref, value) { obfuscateReq.items.push({id: id, type: type, ref: ref, value: value}); };
@@ -71,9 +71,17 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         }
         $scope.gameInterval = $interval(function () { $scope.gameTick(); }, $scope.getTickInterval());
     };
+    
+    $scope.isPropertyPlayerData = function (property) {
+        return property === 'count' || property === 'unlocked' || property === 'disabled' || property === 'suppressed' || property === 'compressionLevel' || property === 'networkLevel' || property === 'clusteringLevel' || property === 'quantumLevel' || property === 'riskPercent' || property === 'offsetCount' || property === 'riskLevel';
+    };
+    
+    $scope.isPropertyMetaData = function (property) {
+        return property === 'upgradeList'  || property === 'requirement';
+    };
 
     $scope.load = function (forceReset) {
-        var i, requirementTemplate, copyUpgrades, now, msSinceTimestamp;
+        var i, j, requirementTemplate, copyUpgrades, now, msSinceTimestamp, deviceMeta, playerDeviceMeta, deviceProperty, upgradeProperty, requirementProperty, upgrade, requirement, scienceMeta, playerScienceMeta, scienceProperty;
         //requirement and upgrade are one-offs, they don't need to be saved.
         requirementTemplate = {};
         requirementTemplate.items = [];
@@ -173,15 +181,19 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             return '<br><span class=\'tooltip-cost\'>' + $scope.display(cost) + 'B</span>';
         };
 
-        $scope.scienceMeta.inject(0, 'Compression', 'Reduce the footprint of data and increase your data manipulation ability by a factor.', 'material-icons', 'call_merge', 240, 1, {}, 1);
-        $scope.scienceMeta.inject(1, 'Optimization', 'Reduce the impact of network loss and even turn it to your advantage.', 'material-icons', 'call_split', 3.6e5, 1, {}, 1);
-        $scope.scienceMeta.inject(2, 'Encryption', 'Reduce the likelihood of being detected, allowing you to spread further.', 'material-icons', 'shuffle', 4.8e8, 1, {}, 1);
-        $scope.scienceMeta.inject(3, 'Quantum Entanglement', 'Quickly scaling improvements to device performance on a global level.', 'material-icons', 'timeline', 6e11, 1, {}, 1);
+        //this is where I'm creating the science types for the player to research, their descriptions, requirements, etc.
+        $scope.scienceMeta.inject(0, 'Compression', 'Improve storage by shrinking data, and increase throughput. Enables Compression on each device: 5% per level, multiplicative.<br />', 'material-icons', 'call_merge', 240, 1, {}, 1);
+        $scope.scienceMeta.inject(1, 'Optimization', 'Use clustering to turn network loss into gains. Enables Optimization on each device: 5% improvement in network performance, per level, multiplicative.', 'material-icons', 'call_split', 3.6e5, 1, {}, 1);
+        $scope.scienceMeta.inject(2, 'Encryption', 'Reduce the likelihood of being detected, allowing you to spread further. Enables Encryption on each device, reducing the risk by a factor of 10 per level.', 'material-icons', 'shuffle', 4.8e8, 1, {}, 1);
+        $scope.scienceMeta.inject(3, 'Quantum Entanglement', 'Quickly scaling improvements to device performance on a global level. Effects are dependent on other quantum entanglement devices.', 'material-icons', 'timeline', 6e11, 1, {}, 1);
         $scope.scienceMeta.inject(4, 'Time Dilation', 'Increase the speed factor of your processors.', 'material-icons', 'fast_forward', 1e4, 200, {}, 5);
         $scope.scienceMeta.inject(5, 'Improbability Generator', 'Capable of generating finite amounts of improbability.', 'material-icons', 'local_cafe', 7.2e14, 1, {}, 1);
 
 
-        //devices
+        //devices, how much they cost, descriptions, template stuff.
+        //when a device has requirements, the requirements template gets cleared() and then I inject the requirements into it, prior to
+        //creating that object as a property inside the device's meta, which effectively clones it. I reuse the requirementTemplate repeatedly.
+        //the upgrade template method is similar, it creates the same upgrade template for each item, but it does it by ID so we can track them separately.
         $scope.deviceMeta.inject(0, 'Mobile', 'Portability and proximity to users makes mobile devices risky to hold.', 'material-icons', 'smartphone', 1, 1, 2e2, 1.07, 1.15, 2, {});
         $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(0));
 
@@ -198,32 +210,119 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
 
         requirementTemplate.clear();
         requirementTemplate.inject(requirementTemplate.items.length, 'science', 1, 1);
-        $scope.deviceMeta.inject(4, 'Mainframe', 'An extremely powerful server designed to do the work of many machines.', 'fi-database', '', 1e4, 15, 2e6, 1.11, 1.11, 2592e4, requirementTemplate.items);
+        $scope.deviceMeta.inject(4, 'Academic Server', 'An extremely powerful server designed to do statistical analysis.', 'fa fa-university', '', 1e4, 15, 2e6, 1.11, 1.11, 2592e4, requirementTemplate.items);
         $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(4));
 
         requirementTemplate.clear();
         requirementTemplate.inject(requirementTemplate.items.length, 'science', 1, 1);
         requirementTemplate.inject(requirementTemplate.items.length, 'science', 2, 1);
-        $scope.deviceMeta.inject(5, 'Supercomputer', 'A military supercomputer that puts common computing to shame.', 'fi-torso-business', '', 1e5, 21, 2e7, 1.12, 1.10, 15552e5, requirementTemplate.items);
+        $scope.deviceMeta.inject(5, 'Government Server', 'A government supercomputer that puts common computing to shame.', 'fa fa-gavel', '', 1e5, 21, 2e7, 1.12, 1.10, 15552e5, requirementTemplate.items);
         $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(5));
 
         requirementTemplate.clear();
         requirementTemplate.inject(requirementTemplate.items.length, 'science', 1, 1);
         requirementTemplate.inject(requirementTemplate.items.length, 'science', 2, 1);
-        $scope.deviceMeta.inject(6, 'Nanocomputer', 'A privately developed nanoscopic machine with incredible processing power.', 'fi-unlock', '', 1e6, 28, 2e8, 1.13, 1.09, 93312e6, requirementTemplate.items);
+        $scope.deviceMeta.inject(6, 'Nanocomputer', 'A privately developed nanoscopic machine with incredible processing power.', 'fa fa-microchip', '', 1e6, 28, 2e8, 1.13, 1.09, 93312e6, requirementTemplate.items);
         $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(6));
 
         requirementTemplate.clear();
         requirementTemplate.inject(requirementTemplate.items.length, 'science', 1, 1);
         requirementTemplate.inject(requirementTemplate.items.length, 'science', 2, 1);
         requirementTemplate.inject(requirementTemplate.items.length, 'science', 3, 1);
-        $scope.deviceMeta.inject(7, 'Quantum Computer', 'A world-collaborative physical marvel, capable of moving vast amounts of data.', 'fi-unlink', '', 1e7, 36, 2e9, 1.14, 1.08, 559872e7, requirementTemplate.items);
+        $scope.deviceMeta.inject(7, 'Quantum Computer', 'A world-collaborative physical marvel, capable of moving vast amounts of data.', 'fa fa-ravelry', '', 1e7, 36, 2e9, 1.14, 1.08, 559872e7, requirementTemplate.items);
         $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(7));
 
         if ($localStorage.deviceMeta !== undefined && !forceReset) {
             $scope.buyMode = $localStorage.buyMode; //buymode is how many devices you're trying to buy at once.1,10,100,0[max] in that order. Defaults to 1.
             $scope.data = $localStorage.data; //your player data, this is your primary resource at the beginning.
-            $scope.population = $localStorage.population;
+            $scope.population = $localStorage.population; //a bit nebulous: more people means it's easier to hide, less people means higher risk.
+            
+            //this is a subroutine devoted to updating the localstorage's templates so they can get updates without breaking player saves.
+            //sorry for this mess, here there be dragons.
+            for (i = 0; i < $scope.deviceMeta.items.length; i += 1) {
+                deviceMeta = $scope.deviceMeta.items[i];
+                playerDeviceMeta = $localStorage.deviceMeta.items[i];
+                for (deviceProperty in deviceMeta) {
+                    if (deviceMeta.hasOwnProperty(deviceProperty)) {
+                        if (playerDeviceMeta.hasOwnProperty(deviceProperty)) {
+                            if (!$scope.isPropertyPlayerData(deviceProperty) && !$scope.isPropertyMetaData(deviceProperty)) {
+                                //if devices property changed and it isn't a player property (like how many you bought), update it.
+                                if (deviceMeta[deviceProperty] !== playerDeviceMeta[deviceProperty]) {
+                                    playerDeviceMeta[deviceProperty] = deviceMeta[deviceProperty];
+                                }
+                            }
+                            if (deviceProperty === 'upgradeList') {
+                                //console.log('looking at upgradelist for ' + deviceMeta.name);
+                                for (j = 0; j < deviceMeta[deviceProperty].length; j += 1) {
+                                    upgrade = deviceMeta[deviceProperty][j];
+                                    for (upgradeProperty in upgrade) {
+                                        if (upgrade.hasOwnProperty(upgradeProperty)) {
+                                            if (!$scope.isPropertyPlayerData(upgradeProperty) && !$scope.isPropertyMetaData(upgradeProperty)) {
+                                                if (deviceMeta[deviceProperty][j][upgradeProperty] !== playerDeviceMeta[deviceProperty][j][upgradeProperty]) {
+                                                    //this is a dive into each device's upgrade template, to do the same thing as above, update it.
+                                                    playerDeviceMeta[deviceProperty][j][upgradeProperty] = deviceMeta[deviceProperty][j][upgradeProperty];
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            if (deviceProperty === 'requirement') {
+                                //console.log('looking at requirements for ' + deviceMeta.name);
+                                for (j = 0; j < deviceMeta[deviceProperty].length; j += 1) {
+                                    requirement = deviceMeta[deviceProperty][j];
+                                    for (requirementProperty in requirement) {
+                                        if (requirement.hasOwnProperty(requirementProperty)) {
+                                            if (!$scope.isPropertyPlayerData(requirementProperty) && !$scope.isPropertyMetaData(requirementProperty)) {
+                                                if (deviceMeta[deviceProperty][j][requirementProperty] !== playerDeviceMeta[deviceProperty][j][requirementProperty]) {
+                                                    //this is a dive into each device's requirement template, to do the same thing as above, update it.
+                                                    playerDeviceMeta[deviceProperty][j][requirementProperty] = deviceMeta[deviceProperty][j][requirementProperty];
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            //same subroutine as above, but for science.
+            for (i = 0; i < $scope.scienceMeta.items.length; i += 1) {
+                scienceMeta = $scope.scienceMeta.items[i];
+                playerScienceMeta = $localStorage.scienceMeta.items[i];
+                for (scienceProperty in scienceMeta) {
+                    if (scienceMeta.hasOwnProperty(scienceProperty)) {
+                        if (playerScienceMeta.hasOwnProperty(scienceProperty)) {
+                            if (!$scope.isPropertyPlayerData(scienceProperty) && !$scope.isPropertyMetaData(scienceProperty)) {
+                                //if devices property changed and it isn't a player property (like how many you bought), update it.
+                                if (scienceMeta[scienceProperty] !== playerScienceMeta[scienceProperty]) {
+                                    playerScienceMeta[scienceProperty] = scienceMeta[scienceProperty];
+                                }
+                            }
+                            if (scienceProperty === 'requirement') {
+                                //console.log('looking at requirements for ' + scienceMeta.name);
+                                for (j = 0; j < scienceMeta[scienceProperty].length; j += 1) {
+                                    requirement = scienceMeta[scienceProperty][j];
+                                    for (requirementProperty in requirement) {
+                                        if (requirement.hasOwnProperty(requirementProperty)) {
+                                            if (!$scope.isPropertyPlayerData(requirementProperty) && !$scope.isPropertyMetaData(requirementProperty)) {
+                                                if (scienceMeta[scienceProperty][j][requirementProperty] !== playerScienceMeta[scienceProperty][j][requirementProperty]) {
+                                                    //this is a dive into each device's requirement template, to do the same thing as above, update it.
+                                                    playerScienceMeta[scienceProperty][j][requirementProperty] = scienceMeta[scienceProperty][j][requirementProperty];
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            
             $scope.deviceMeta = $localStorage.deviceMeta;
             $scope.scienceMeta = $localStorage.scienceMeta;
             $scope.workMeta = $localStorage.workMeta;
@@ -240,15 +339,10 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
 
         if (now > $localStorage.lastSaved) {
             msSinceTimestamp = now - $localStorage.lastSaved;
-            //i = msSinceTimestamp / $scope.getTickInterval();
-            console.log('it has been ' + msSinceTimestamp + ' ms, ticks ' + msSinceTimestamp / $scope.getTickInterval() + ' and ' + msSinceTimestamp / 1000 + ' seconds');
-            //for (i; i > 0; i -= 1) {
-            //    $scope.gameTick;
-            //}
         }
 
         $localStorage.lastSaved = new Date().valueOf();
-        $scope.save();//forces a wipe to save over old file..
+        $scope.save();//forces a wipe to save over old file.
     };
 
     $scope.save = function () {
@@ -259,6 +353,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         $localStorage.buyMode = $scope.buyMode;
         $localStorage.population = $scope.population;
         $localStorage.lastSaved = new Date().valueOf();
+        $localStorage.permanentlyUnlockScience = $scope.permanentlyUnlockScience;
     };
 
     $scope.load(false);
@@ -320,10 +415,14 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
     };
 
     $scope.scienceAvailable = function () {
+        if ($scope.permanentlyUnlockScience) {
+            return true;
+        }
         var i, sciObj;
         for (i = 0; i < $scope.scienceMeta.items.length; i += 1) {
             sciObj = $scope.scienceMeta.items[i];
             if (sciObj.count > 0 || $scope.canBuyScience(sciObj)) {
+                $scope.permanentlyUnlockScience = true;
                 return true;
             }
         }
@@ -432,6 +531,27 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         $scope.processRisk();
         //here's where magic happens, such as data being incremented.
         $scope.data = Math.min($scope.getDeviceStorageMax(), $scope.data + $scope.getTickCPU());
+        $scope.processUnlocks();
+    };
+    
+    $scope.processUnlocks = function () {
+        var i, deviceMeta, scienceMeta;
+        for (i = 0; i < $scope.deviceMeta.items.length; i += 1) {
+            deviceMeta = $scope.deviceMeta.items[i];
+            if (!deviceMeta.unlocked) {
+                if (deviceMeta.cpuCostBase <= $scope.data * 5) {
+                    deviceMeta.unlocked = true;
+                }
+            }
+        }
+        for (i = 0; i < $scope.scienceMeta.items.length; i += 1) {
+            scienceMeta = $scope.scienceMeta.items[i];
+            if (!scienceMeta.unlocked) {
+                if (scienceMeta.cpuCostBase <= $scope.data * 5) {
+                    scienceMeta.unlocked = true;
+                }
+            }
+        }
     };
 
     $scope.getDeviceStorageMax = function (deviceID) {
@@ -539,6 +659,25 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             break;
         }
         return cost;
+    };
+    
+    $scope.getUpgradeLevel = function (upgrade) {
+        var deviceMeta = $scope.getDeviceMeta(upgrade.deviceID), count = 0;
+        switch (upgrade.id) {
+        case 0://compression
+            count = deviceMeta.compressionLevel;
+            break;
+        case 1://networking
+            count = deviceMeta.networkLevel;
+            break;
+        case 2://obfuscation
+            count = deviceMeta.riskLevel;
+            break;
+        case 3://quantum
+            count = deviceMeta.quantumLevel;
+            break;
+        }
+        return count;
     };
 
     $scope.canBuyUpgrade = function (upgrade) {

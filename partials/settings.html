@@ -1,1 +1,5 @@
-<a ng-click="if (confirm('Are you sure you want to reset all progress? This can't be undone!')) { load(true); }">Force Reset</a>
+Please forgive the lack of settings at the moment. Right now all you can do is a hard reset.
+<br>
+<a ng-hide="showReallyResetButton" ng-click="showReallyResetButton=true" class="btn btn-xs btn-primary">Force Reset</a>
+<a ng-show="showReallyResetButton" ng-click="load(true);" class="btn btn-xs btn-primary">REALLY Reset?</a>&nbsp;
+<a ng-show="showReallyResetButton" ng-click="showReallyResetButton=false" class="btn btn-xs btn-primary">Nope, just kidding. Hide the evil reset button.</a>
