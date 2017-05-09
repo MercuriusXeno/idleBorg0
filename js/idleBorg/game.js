@@ -84,7 +84,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             requirementTemplate.items.push({
                 id: id,
                 type: type,//best values for these are gonna be: device,work,science,evolve,upgrade
-                ref: ref,//the id of the object you're requirement.. requires
+                ref: ref,//the id of the object your requirement.. requires
                 value: value//the count must be this or higher
             });
         };
@@ -220,13 +220,6 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         $scope.deviceMeta.inject(7, 'Quantum Computer', 'A world-collaborative physical marvel, capable of moving vast amounts of data.', 'fi-unlink', '', 1e7, 36, 2e9, 1.14, 1.08, 559872e7, requirementTemplate.items);
         $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(7));
 
-        requirementTemplate.clear();
-        requirementTemplate.inject(requirementTemplate.items.length, 'science', 1, 1);
-        requirementTemplate.inject(requirementTemplate.items.length, 'science', 2, 1);
-        requirementTemplate.inject(requirementTemplate.items.length, 'science', 3, 1);
-        $scope.deviceMeta.inject(7, 'Quantum Computer', 'A world-collaborative physical marvel, capable of moving vast amounts of data.', 'fi-unlink', '', 1e7, 36, 2e9, 1.14, 1.08, 559872e7, requirementTemplate.items);
-        $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(7));
-
         if ($localStorage.deviceMeta !== undefined && !forceReset) {
             $scope.buyMode = $localStorage.buyMode; //buymode is how many devices you're trying to buy at once.1,10,100,0[max] in that order. Defaults to 1.
             $scope.data = $localStorage.data; //your player data, this is your primary resource at the beginning.
@@ -282,9 +275,9 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
 
     $scope.getFillColor = function (number) {
         if (number >= 0.9) {
-            return 'fg-red';
+            return 'progress-bar-danger fg-white';
         }
-        return 'fg-white';
+        return 'progress-bar-info fg-black';
     };
 
     $scope.getScienceCost = function (science) {
@@ -701,6 +694,16 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         x = Math[x < 0 ? 'ceil' : 'floor'](x);
         x /= Math.pow(10, digits);
         return x;
+    };
+
+    $scope.getStoragePercentage = function () {
+        var storagePercentage;
+        if ($scope.getDeviceStorageMax() > 0) {
+            storagePercentage = $scope.data * 100 / $scope.getDeviceStorageMax();
+        } else {
+            storagePercentage = 0;
+        }
+        return storagePercentage;
     };
 
     $scope.getDigits = function (number) {
