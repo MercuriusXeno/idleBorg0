@@ -1,46 +1,55 @@
 <ul class="nav nav-pills">
     <li>
-        <div ng-click="setTab('data')" tooltips tooltip-template="{{ getNameForTooltip('Data') }}: take over devices and gain more brain power." tooltip-speed="fast" tooltip-class="tooltip-md" tooltip-smart="true">
-            <a href="#/data"><i class="fa fa-database btn-tab" ng-class="selectedTab === 'data' ? 'fg-white btn-tab-selected' : 'fg-orange'"></i></a>
+        <a href="#/data">
+            <i class="fa fa-database btn-tab" ng-class="selectedTab === 'data' ? 'fg-white btn-tab-selected' : 'fg-orange'" ng-click="setTab('data')" tooltips tooltip-template="{{ getNameForTooltip('Data') }}: take over devices and gain more brain power." tooltip-speed="fast" tooltip-class="tooltip-md" tooltip-smart="true"></i>
+        </a>
+    </li>
+    <li style="width:10%">
+        <div ng-show="scienceAvailable()" tooltips tooltip-template="{{ getNameForTooltip('Science') }}: spend resources to unlock technology" tooltip-side="bottom" tooltip-speed="fast">
+            <a href="#/science" ng-click="setTab('science')">
+                <i class="ion ion-beaker btn-tab" ng-class="selectedTab === 'science' ? 'fg-white' : 'fg-cyan'" ></i>
+            </a>
         </div>
     </li>
-    <li>
-        <div ng-show="scienceAvailable()">
-            <a href="#/science" ng-click="setTab('science')" tooltips tooltip-template="{{ getNameForTooltip('Science') }}: spend resources to unlock technology" tooltip-side="bottom" tooltip-speed="fast"><i class="ion ion-beaker btn-tab" ng-class="selectedTab === 'science' ? 'fg-white' : 'fg-cyan'" ></i></a>
-        </div>
-    </li>
-    <li>
+    <li style="width:10%">
         <div>
             <a href="#/work" ng-click="setTab('work')" tooltips tooltip-template="{{ getNameForTooltip('Work') }}: exchange resources and unlock opportunities." tooltip-side="bottom" tooltip-speed="fast" ng-show="workAvailable()"><i class="ion ion-ios-briefcase btn-tab" ng-class="selectedTab === 'work' ? 'fg-white' : 'fg-red'"></i></a>
         </div>
     </li>
-    <li>
+    <li style="width:10%">
         <div>
             <a href="#/build" ng-click="setTab('build')" tooltips tooltip-template="{{ getNameForTooltip('Build') }}: task your robots with building" tooltip-side="bottom" tooltip-speed="fast" ng-show="robots > 0"><i class="ion ion-hammer btn-tab" ng-class="selectedTab === 'build' ? 'fg-white' : 'fg-green'"></i></a>
         </div>
     </li>
-    <li>
+    <li style="width:10%">
         <div>
             <a href="#/evolve" ng-click="setTab('evolve')" tooltips tooltip-template="{{ getNameForTooltip('Evolve') }}: spend AP to advance faster" tooltip-side="bottom" tooltip-speed="fast" ng-show="apriori > 0"><i class="ion ion-ios-infinite btn-tab" ng-class="selectedTab === 'evolve' ? 'fg-white' : 'fg-yellow'"></i></a>
         </div>
     </li>
-    <li>
-    <div style="margin-left: 800%">
-
-        <a ng-click="load(true)">Force Reset</a>
+    <li style="width:10%">
+        <div>
+            <a href="#/welcome" ng-click="setTab('welcome')" tooltips tooltip-template="{{ getNameForTooltip('Welcome') }}: How to play" tooltip-side="bottom" tooltip-speed="fast"><i class="ion ion-help btn-tab" ng-class="selectedTab === 'welcome' ? 'fg-white' : 'fg-lightblue'"></i></a>
+        </div>
+    </li>
+    <li style="width:10%">
+        <div style="margin-left: 800%">
+            <a ng-click="load(true)" onclick="return confirm('Are you sure you want to reset all progress? This can't be undone!')">Force Reset</a>
         </div>
     </li>
 </ul>
 <hr>
 <div class="row">
-    <div class="col-sm-4">
-        <span class="fg-cyan">Data</span>: <span ng-class="getFillColor(data / getDeviceStorageMax())"> {{ display(data) }}B</span>
-    </div>
-    <div class="col-sm-4">
+    <div class="col-xs-2">
         <span class="fg-cyan">DPS</span>: {{ display(getTicksPerSecond() * getTickCPU()) }}B/sec
     </div>
-    <div class="col-sm-4">
-        <span class="fg-cyan">Storage</span>: <span ng-class="getFillColor(data / getDeviceStorageMax())">{{ display(getDeviceStorageMax() > 0 ? (data * 100 / getDeviceStorageMax()) : 0) }}% / {{display(getDeviceStorageMax())}}B</span>
+    <div class="col-xs-4">
+        <span class="fg-cyan">Storage</span>: {{ display(data) }}B / {{display(getDeviceStorageMax())}}B ({{ display(getDeviceStorageMax() &gt; 0 ? (data * 100 / getDeviceStorageMax()) : 0) }})%
+    </div>
+    <div class="col-xs-6">
+        <div class="progress fg-black" style="height: 24px;">
+            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="{{ data }}" aria-valuemin="0" aria-valuemax="{{ getDeviceStorageMax() }}" ng-style="{width: (getStoragePercentage() + '%')}" ng-class="getFillColor(data / getDeviceStorageMax())" style="line-height: 24px;" >
+            </div>
+        </div>
     </div>
 </div>
 
