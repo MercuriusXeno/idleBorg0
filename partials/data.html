@@ -14,9 +14,8 @@
             <div class="col-xs-2">
                 <span style="position:relative">
                     <span>
-                        <a ng-click="buyDevice(device)" ng-class="(!canBuyDevice(device) ? 'btn-disabled' : 'btn-enabled')"
-                           class="btn btn-sm btn-primary round-borders"
-                           tooltips tooltip-class="tooltip-md" tooltip-speed="fast" tooltip-smart="true"
+                        <a ng-click="buyDevice(device)" ng-class="(!canBuyDevice(device) ? 'btn-disabled' : 'btn-enabled')" class="btn btn-sm btn-primary round-borders"
+                           tooltips tooltip-speed="fast" tooltip-side="bottom-right"
                            tooltip-template="{{ getNameForTooltip(device.name) }}: {{ getDeviceMeta(device.id).description }} ">
 
                             <i class="btn-device" ng-class="device.icon + ' ' + getCanBuyColor('device', device)" ng-bind="device.iconFontID" ng-disabled="data < getDeviceBuyPrice(device)">
@@ -36,7 +35,7 @@
                     <div class="col-xs-6" ng-repeat="upgrade in device.upgradeList" ng-show="requirementsMet(upgrade.requirement)">
                         <span style="position:relative">
                             <span>
-                                <a class="btn btn-primary btn-upgrade round-borders" ng-click="buyUpgrade(upgrade)" tooltips tooltip-speed="fast" tooltip-smart="true" tooltip-template="{{ getNameForTooltip(upgrade.name) }}: {{upgrade.description}} COST: {{ display(getUpgradeCost(upgrade)) }}B"
+                                <a class="btn btn-primary btn-upgrade round-borders" ng-click="buyUpgrade(upgrade)" tooltips tooltip-speed="fast" tooltip-side="bottom-right" tooltip-template="{{ getNameForTooltip(upgrade.name) }}: {{upgrade.description}} COST: {{ display(getUpgradeCost(upgrade)) }}B"
                                 ng-class="(!canBuyUpgrade(upgrade) ? 'btn-disabled' : 'btn-enabled')" >
                                     <i class="btn-upgrade-image" ng-class="upgrade.icon + ' ' + getCanBuyColor('upgrade', upgrade)" ng-bind="upgrade.iconFontID"></i>
                                 </a>
@@ -48,7 +47,7 @@
                     </div>
                     <div class="col-xs-6" ng-repeat="upgrade in device.upgradeList" ng-hide="requirementsMet(upgrade.requirement)">
                         <span style="position:relative">
-                                <a class="btn btn-primary btn-upgrade btn-ghost round-borders" tooltips tooltip-speed="fast" tooltip-smart="true" tooltip-class="tooltip-md" tooltip-template="{{ getNameForTooltip(upgrade.name) }}: Upgrade Locked" >
+                                <a class="btn btn-primary btn-upgrade btn-ghost round-borders" tooltips tooltip-speed="fast" tooltip-side="bottom-right" tooltip-template="{{ getNameForTooltip(upgrade.name) }}: Upgrade Locked" >
                                     <i class="btn-upgrade-image" ng-class="upgrade.icon " ng-bind="upgrade.iconFontID"></i>
                             </a>
                         </span>
