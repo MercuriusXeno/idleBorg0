@@ -255,6 +255,10 @@ img {
     color: cyan;
 }
 
+.fg-lightblue {
+    color: lightblue;
+}
+
 .fg-red {
     color: red;
 }
@@ -277,6 +281,10 @@ img {
 
 .fg-gray {
     color: gray;
+}
+
+.fg-black {
+    color: black;
 }
 
 .bg-orange {
