@@ -20,6 +20,9 @@ angular.module('gameApp', ['ngRoute', 'angular-dialgauge', 'timer', 'ngSanitize'
     $routeProvider.when('/welcome', {
         templateUrl: 'partials/welcome.html'
     });
+    $routeProvider.when('/settings', {
+        templateUrl: 'partials/settings.html'
+    });
     $routeProvider.otherwise({ redirectTo: '/welcome' });
 
 
