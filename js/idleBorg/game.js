@@ -25,26 +25,26 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         compressionReq.inject(compressionReq.items.length, 'device', device.id, 10);//10 mobiles
         compressionReq.inject(compressionReq.items.length, 'science', 0, 1);//compression
         //this generates 8 stock templates, 1 for each device, and gives them names.
-        newUpgrades.inject(newUpgrades.items.length, device.id, 'Compression', 'Increase storage and data rates by 10% per level. Multiplicative.', 'material-icons', 'call_merge', 125 * device.cpuCostBase, 1.2, compressionReq.items);
+        newUpgrades.inject(newUpgrades.items.length, device.id, 'Compression', 'Increase storage and data rates by 100% per level. Multiplicative.', 'material-icons', 'call_merge', 125 * device.cpuCostBase, 4, compressionReq.items);
 
         networkReq.items = [];
         networkReq.inject = function (id, type, ref, value) { networkReq.items.push({id: id, type: type, ref: ref, value: value}); };
         networkReq.inject(networkReq.items.length, 'device', device.id, 25);
         networkReq.inject(networkReq.items.length, 'science', 1, 1);//networking
-        newUpgrades.inject(newUpgrades.items.length, device.id, 'Optimization', 'Use clustering to combat network loss by 10% per level. Additive.', 'material-icons', 'call_split', 25e2 * device.cpuCostBase, 1.3, networkReq.items);
+        newUpgrades.inject(newUpgrades.items.length, device.id, 'Optimization', 'Use clustering to combat network loss by 10% per level. Additive.', 'material-icons', 'call_split', 25e2 * device.cpuCostBase, 4.5, networkReq.items);
 
         obfuscateReq.items = [];
         obfuscateReq.inject = function (id, type, ref, value) { obfuscateReq.items.push({id: id, type: type, ref: ref, value: value}); };
         obfuscateReq.inject(obfuscateReq.items.length, 'device', device.id, 50);
         obfuscateReq.inject(obfuscateReq.items.length, 'science', 2, 1);//network security
-        newUpgrades.inject(newUpgrades.items.length, device.id, 'Encryption', 'Reduce your risk factor by a factor of 2 per level, multiplicative.', 'material-icons', 'shuffle', 50e3 * device.cpuCostBase, 1.4, obfuscateReq.items);
+        newUpgrades.inject(newUpgrades.items.length, device.id, 'Encryption', 'Reduce your risk by a factor of 2 per level, multiplicative.', 'material-icons', 'shuffle', 50e3 * device.cpuCostBase, 5, obfuscateReq.items);
 
         quantumReq.items = [];
         quantumReq.inject = function (id, type, ref, value) { quantumReq.items.push({id: id, type: type, ref: ref, value: value}); };
         quantumReq.inject(quantumReq.items.length, 'device', device.id, 100);
         quantumReq.inject(quantumReq.items.length, 'device', 7, 1);//you must have at least 1 quantum computer.
         quantumReq.inject(quantumReq.items.length, 'science', 3, 1);//quantum entanglement
-        newUpgrades.inject(newUpgrades.items.length, device.id, 'Quantum Entanglement', 'Increase device power and reduce risk.', 'material-icons', 'timeline', 100e4 * device.cpuCostBase, 1.5, quantumReq.items);
+        newUpgrades.inject(newUpgrades.items.length, device.id, 'Quantum Entanglement', 'Increase device power based on overall entanglement and reduce risk.', 'material-icons', 'timeline', 100e4 * device.cpuCostBase, 5.5, quantumReq.items);
 
         device.upgradeList = newUpgrades.items;
     };
@@ -187,6 +187,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         $scope.scienceMeta.inject(3, 'Quantum Entanglement', 'Quickly scaling improvements to device performance on a global level. Effects are dependent on other quantum entanglement devices.', 'material-icons', 'timeline', 320e9, 1, {}, 1);
         $scope.scienceMeta.inject(4, 'Time Dilation', 'Increase the speed factor of your processors.', 'material-icons', 'fast_forward', 1e4, 2000, {}, 5);
         $scope.scienceMeta.inject(5, 'Improbability Generator', 'Capable of generating finite amounts of improbability.', 'material-icons', 'local_cafe', 7.2e14, 1, {}, 1);
+        $scope.scienceMeta.inject(6, 'Clustering', 'Devices now give a bonus for each tier based on how many devices you have. 1% per device, multiplicative.', 'material-icons', 'shuffle', 120e6, 1, {}, 1);
 
 
         //devices, how much they cost, descriptions, template stuff.
@@ -290,26 +291,31 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             //same subroutine as above, but for science.
             for (i = 0; i < $scope.scienceMeta.items.length; i += 1) {
                 scienceMeta = $scope.scienceMeta.items[i];
-                playerScienceMeta = $localStorage.scienceMeta.items[i];
-                for (scienceProperty in scienceMeta) {
-                    if (scienceMeta.hasOwnProperty(scienceProperty)) {
-                        if (playerScienceMeta.hasOwnProperty(scienceProperty)) {
-                            if (!$scope.isPropertyPlayerData(scienceProperty) && !$scope.isPropertyMetaData(scienceProperty)) {
-                                //if devices property changed and it isn't a player property (like how many you bought), update it.
-                                if (scienceMeta[scienceProperty] !== playerScienceMeta[scienceProperty]) {
-                                    playerScienceMeta[scienceProperty] = scienceMeta[scienceProperty];
+                if (i >= $localStorage.scienceMeta.items.length) { //this means I added something new to the meta template, so your save is missing it. Add it to the save file using the inject method.
+                    //$localStorage.scienceMeta.items.push(scienceMeta.id, scienceMeta.name, scienceMeta.description, scienceMeta.icon, scienceMeta.iconFontID, scienceMeta.cpuCostBase, scienceMeta.cpuCostIncrement, scienceMeta.requirement, scienceMeta.count, scienceMeta.max);
+                    $localStorage.scienceMeta.items.push(scienceMeta);
+                } else {
+                    playerScienceMeta = $localStorage.scienceMeta.items[i];
+                    for (scienceProperty in scienceMeta) {
+                        if (scienceMeta.hasOwnProperty(scienceProperty)) {
+                            if (playerScienceMeta.hasOwnProperty(scienceProperty)) {
+                                if (!$scope.isPropertyPlayerData(scienceProperty) && !$scope.isPropertyMetaData(scienceProperty)) {
+                                    //if devices property changed and it isn't a player property (like how many you bought), update it.
+                                    if (scienceMeta[scienceProperty] !== playerScienceMeta[scienceProperty]) {
+                                        playerScienceMeta[scienceProperty] = scienceMeta[scienceProperty];
+                                    }
                                 }
-                            }
-                            if (scienceProperty === 'requirement') {
-                                //console.log('looking at requirements for ' + scienceMeta.name);
-                                for (j = 0; j < scienceMeta[scienceProperty].length; j += 1) {
-                                    requirement = scienceMeta[scienceProperty][j];
-                                    for (requirementProperty in requirement) {
-                                        if (requirement.hasOwnProperty(requirementProperty)) {
-                                            if (!$scope.isPropertyPlayerData(requirementProperty) && !$scope.isPropertyMetaData(requirementProperty)) {
-                                                if (scienceMeta[scienceProperty][j][requirementProperty] !== playerScienceMeta[scienceProperty][j][requirementProperty]) {
-                                                    //this is a dive into each device's requirement template, to do the same thing as above, update it.
-                                                    playerScienceMeta[scienceProperty][j][requirementProperty] = scienceMeta[scienceProperty][j][requirementProperty];
+                                if (scienceProperty === 'requirement') {
+                                    //console.log('looking at requirements for ' + scienceMeta.name);
+                                    for (j = 0; j < scienceMeta[scienceProperty].length; j += 1) {
+                                        requirement = scienceMeta[scienceProperty][j];
+                                        for (requirementProperty in requirement) {
+                                            if (requirement.hasOwnProperty(requirementProperty)) {
+                                                if (!$scope.isPropertyPlayerData(requirementProperty) && !$scope.isPropertyMetaData(requirementProperty)) {
+                                                    if (scienceMeta[scienceProperty][j][requirementProperty] !== playerScienceMeta[scienceProperty][j][requirementProperty]) {
+                                                        //this is a dive into each device's requirement template, to do the same thing as above, update it.
+                                                        playerScienceMeta[scienceProperty][j][requirementProperty] = scienceMeta[scienceProperty][j][requirementProperty];
+                                                    }
                                                 }
                                             }
                                         }
@@ -484,7 +490,12 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
     };
 
     $scope.getDeviceCPUFactor = function (device) {
-        return $scope.getSuppressionCPUFactor(device) * $scope.getDeviceNetworkFactor(device) * $scope.getDeviceQuantumFactor(device) * $scope.getDeviceCompressionFactor(device);
+        return $scope.getSuppressionCPUFactor(device) * $scope.getDeviceNetworkFactor(device) * $scope.getDeviceQuantumFactor(device) * $scope.getDeviceCompressionFactor(device) * $scope.getDeviceClusteringFactor(device);
+    };
+
+    $scope.getDeviceClusteringFactor = function (device) {
+        var scienceMeta = $scope.getScienceMeta(6);//clustering, if you have it, it's a permanent bonus to all devices.
+        return Math.pow(1.01, device.count);
     };
 
     $scope.getDeviceNetworkFactor = function (device) {
@@ -500,7 +511,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
     };
 
     $scope.getCompressionFactor = function (compressionLevel) {
-        return Math.pow(1.1, compressionLevel);
+        return Math.pow(2, compressionLevel);
     };
 
     $scope.installClick = function () {

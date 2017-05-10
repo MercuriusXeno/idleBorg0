@@ -9,7 +9,7 @@
         <br>
         <a ng-click="installClick()" ng-disabled="hasDevice()" class="btn btn-primary"><i class="material-icons">build</i> Makefile.jar</a>
     </div>
-    <div class="col-xs-5 round-borders-inset" style="margin-bottom:1%; margin-right: 1%;" ng-show="(device.count > 0 || device.unlocked" ng-repeat="device in deviceMeta.items">
+    <div class="col-xs-6 round-borders-inset" ng-show="(device.count > 0 || device.unlocked" ng-repeat="device in deviceMeta.items">
         <div class="row">
             <div class="col-xs-2">
                 <span style="position:relative">
