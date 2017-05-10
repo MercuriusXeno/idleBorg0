@@ -760,6 +760,29 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             return 'fg-gray';
         }
     };
+    
+    //helps get the css class of the upgrade buttons which varies by progression.
+    $scope.getUpgradeCSS = function (upgrade) {
+        if ($scope.requirementsMet(upgrade.requirement)) {
+            if ($scope.canBuyUpgrade(upgrade)) {
+                return 'btn-upgrade-wrapper btn-enabled';
+            } else {
+                return 'btn-upgrade-wrapper btn-disabled';
+            }
+        } else {
+            return 'btn-ghost';
+        }
+    };
+    
+    $scope.getTooltipTemplateForUpgrade = function (upgrade) {
+        var tooltip = $scope.getNameForTooltip(upgrade.name) + ': ';
+        if ($scope.requirementsMet(upgrade.requirement)) {
+            tooltip += upgrade.description + ' Costs ' + $scope.display($scope.getUpgradeCost(upgrade)) + 'B';
+        } else {
+            tooltip += 'Upgrade Locked';
+        }
+        return tooltip;
+    };
 
     $scope.getNextBuyModeInCycle = function () {
         switch ($scope.buyMode) {
@@ -786,50 +809,6 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         } else {
             return 'x' + $scope.buyMode;
         }
-    };
-
-    $scope.riskDialRanges = [
-        {
-            min: 0,
-            max: 10,
-            color: '#00FF00'
-        },
-        {
-            min: 11,
-            max: 25,
-            color: '#44DD00'
-        },
-        {
-            min: 26,
-            max: 50,
-            color: '#88BB00'
-        },
-        {
-            min: 51,
-            max: 75,
-            color: '#AA8800'
-        },
-        {
-            min: 76,
-            max: 100,
-            color: '#FF0000'
-        }
-    ];
-
-    $scope.riskDialUnit = '%';
-
-    $scope.getRiskGauge = function (device) {
-        var riskGaugeOptions = {
-            value: 1,
-            upperLimit: 100,
-            lowerLimit: 0,
-            unit: '%',
-            precision: 1,
-            ranges: [
-
-            ]
-        };
-        return riskGaugeOptions;
     };
 
     $scope.truncate = function (number, digits) {
@@ -875,21 +854,21 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         }
         switch (i) {
         case 1:
-            return number + ' k';
+            return number + 'k';
         case 2:
-            return number + ' m';
+            return number + 'm';
         case 3:
-            return number + ' g';
+            return number + 'g';
         case 4:
-            return number + ' t';
+            return number + 't';
         case 5:
-            return number + ' p';
+            return number + 'p';
         case 6:
-            return number + ' e';
+            return number + 'e';
         case 7:
-            return number + ' z';
+            return number + 'z';
         case 8:
-            return number + ' y';
+            return number + 'y';
         case 0:
             return number;
         default:
