@@ -37,7 +37,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         obfuscateReq.inject = function (id, type, ref, value) { obfuscateReq.items.push({id: id, type: type, ref: ref, value: value}); };
         obfuscateReq.inject(obfuscateReq.items.length, 'device', device.id, 50);
         obfuscateReq.inject(obfuscateReq.items.length, 'science', 2, 1);//network security
-        newUpgrades.inject(newUpgrades.items.length, device.id, 'Encryption', 'Reduce your risk factor by a factor of 5 per level, multiplicative.', 'material-icons', 'shuffle', 50e3 * device.cpuCostBase, 1.4, obfuscateReq.items);
+        newUpgrades.inject(newUpgrades.items.length, device.id, 'Encryption', 'Reduce your risk factor by a factor of 2 per level, multiplicative.', 'material-icons', 'shuffle', 50e3 * device.cpuCostBase, 1.4, obfuscateReq.items);
 
         quantumReq.items = [];
         quantumReq.inject = function (id, type, ref, value) { quantumReq.items.push({id: id, type: type, ref: ref, value: value}); };
@@ -183,7 +183,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         //this is where I'm creating the science types for the player to research, their descriptions, requirements, etc.
         $scope.scienceMeta.inject(0, 'Compression', 'Improve storage by shrinking data, and increase throughput. Enables Compression on each device: 10% per level, multiplicative.<br />', 'material-icons', 'call_merge', 5e3, 1, {}, 1);
         $scope.scienceMeta.inject(1, 'Optimization', 'Use clustering to turn network loss into gains. Enables Optimization on each device, improving network efficiency by 10% per level, additive.', 'material-icons', 'call_split', 20e5, 1, {}, 1);
-        $scope.scienceMeta.inject(2, 'Encryption', 'Reduce the likelihood of being detected, allowing you to spread further. Enables Encryption on each device, decreasing risk by a factor of 5.', 'material-icons', 'shuffle', 80e7, 1, {}, 1);
+        $scope.scienceMeta.inject(2, 'Encryption', 'Reduce the likelihood of being detected, allowing you to spread further. Enables Encryption on each device, cuts risk factor in half each level.', 'material-icons', 'shuffle', 80e7, 1, {}, 1);
         $scope.scienceMeta.inject(3, 'Quantum Entanglement', 'Quickly scaling improvements to device performance on a global level. Effects are dependent on other quantum entanglement devices.', 'material-icons', 'timeline', 320e9, 1, {}, 1);
         $scope.scienceMeta.inject(4, 'Time Dilation', 'Increase the speed factor of your processors.', 'material-icons', 'fast_forward', 1e4, 2000, {}, 5);
         $scope.scienceMeta.inject(5, 'Improbability Generator', 'Capable of generating finite amounts of improbability.', 'material-icons', 'local_cafe', 7.2e14, 1, {}, 1);
@@ -453,7 +453,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             riskTotal += deviceMeta.riskBase * riskCoeff;
         }
         if (deviceMeta.riskLevel > 0 || deviceMeta.quantumLevel > 0) {
-            riskTotal *= Math.pow(0.2, deviceMeta.riskLevel + (deviceMeta.quantumLevel / 2));
+            riskTotal *= Math.pow(0.5, deviceMeta.riskLevel + (deviceMeta.quantumLevel / 2));
         }
         return riskTotal;
     };
