@@ -75,6 +75,11 @@ img {
     }
 }
 
+.col-xs-6 {
+    padding: 0px;
+    margin: 0px;
+}
+
 .btn-tab {
     font-size: 15pt;
     padding: 10pt;
@@ -198,14 +203,6 @@ img {
 
 .btn-upgrade {
     font-size:16pt;
-    margin-left: 1px;
-    padding-left: 5px;
-    margin-right: 1px;
-    padding-right: 5px;
-    margin-top: 1px;
-    padding-top: 5px;
-    margin-bottom: 1px;
-    padding-bottom: 5px;
     cursor: pointer;
 }
 
@@ -230,7 +227,6 @@ img {
 
 .tooltip-md {
     font-size: 14pt;
-    min-width: 200pt;
     pointer-events:none;
 }
 
@@ -248,9 +244,9 @@ img {
 }
 
 .round-borders-inset {
-    border: 4pt inset white;
+    border: 2pt inset white;
     border-color: white;
-    border-radius: 8pt;
+    border-radius: 10pt;
 }
 
 .btn-tab-selected {

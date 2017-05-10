@@ -9,7 +9,7 @@
         <br>
         <a ng-click="installClick()" ng-disabled="hasDevice()" class="btn btn-primary"><i class="material-icons">build</i> Makefile.jar</a>
     </div>
-    <div class="col-xs-5 round-borders-inset" style="margin-bottom:1%; margin-right: 1%;" ng-show="(device.count > 0 || device.unlocked" ng-repeat="device in deviceMeta.items">
+    <div class="col-xs-6 round-borders-inset" ng-show="(device.count > 0 || device.unlocked" ng-repeat="device in deviceMeta.items">
         <div class="row">
             <div class="col-xs-2">
                 <span style="position:relative">
@@ -69,7 +69,7 @@
                 <span class="fg-gray" style="font-size: 12pt;">Storage</span><span style="font-size: 12pt;">: {{ display(getDeviceStorageMax(device.id)) }}B</span>
                 <span class="fg-white" style="font-size: 12pt;">({{ display(getDeviceStorageMax(device.id) * 100 / getDeviceStorageMax()) }}%)</span>
                 <br>
-                <span class="fg-gold" style="font-size: 12pt;">Packet {{ getDeviceNetworkFactor(device) &lt; 1 ? 'Loss' : 'Gain' }}</span><span style="font-size: 12pt;">: {{ display(getDeviceNetworkFactor(device) * 100 - 100, true) }}%</span>
+                <span class="fg-gold" style="font-size: 12pt;">{{ getDeviceNetworkFactor(device) &lt; 1 ? 'Packet' : 'Network' }} {{ getDeviceNetworkFactor(device) &lt; 1 ? 'Loss' : 'Gain' }}</span><span style="font-size: 12pt;">: {{ display(getDeviceNetworkFactor(device) * 100 - 100, true) }}%</span>
                 <br>
                 <span ng-show="getDeviceDataCost(device) > 0"><span class="fg-gold" style="font-size: 12pt;">Hack Cost</span><span style="font-size: 12pt;">: {{ display(getDeviceDataCost(device))}}B</span></span>
                 <span ng-show="getDeviceDataCost(device) == 0"><span class="fg-gold" style="font-size: 12pt;">Costs</span><span style="font-size: 12pt;">: {{ display(getDeviceDataCost(device, 1))}}B</span></span>
