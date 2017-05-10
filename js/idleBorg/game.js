@@ -196,39 +196,39 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         $scope.deviceMeta.inject(0, 'Mobile', 'Portability and proximity to users makes mobile devices risky to hold.', 'material-icons', 'smartphone', 1, 1, 2e3, 1.07, 1.09, 2, {});
         $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(0));
 
-        $scope.deviceMeta.inject(1, 'Personal', 'Private computer access has improved risk factor over mobile devices.', 'material-icons', 'laptop', 10, 3, 2e4, 1.08, 1.085, 120, {});
+        $scope.deviceMeta.inject(1, 'Personal', 'Private computer access has improved risk factor over mobile devices.', 'material-icons', 'laptop', 40, 3, 4e4, 1.08, 1.085, 120, {});
         $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(1));
 
-        $scope.deviceMeta.inject(2, 'Workstation', 'Designed for multitasking. Exploited stacks are safe and very powerful.', 'fa fa-server', '', 100, 6, 2e5, 1.09, 1.08, 7200, {});
+        $scope.deviceMeta.inject(2, 'Workstation', 'Designed for multitasking. Exploited stacks are safe and very powerful.', 'fa fa-server', '', 1600, 6, 8e5, 1.09, 1.08, 7200, {});
         $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(2));
 
         requirementTemplate.clear();
         requirementTemplate.inject(requirementTemplate.items.length, 'science', 1, 1);
-        $scope.deviceMeta.inject(3, 'Database', 'A database built for moving large amounts of information, very fast.', 'fa fa-database', '', 1e3, 10, 2e6, 1.10, 1.075, 432e3, requirementTemplate.items);
+        $scope.deviceMeta.inject(3, 'Database', 'A database built for moving large amounts of information, very fast.', 'fa fa-database', '', 64e3, 10, 16e6, 1.10, 1.075, 432e3, requirementTemplate.items);
         $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(3));
 
         requirementTemplate.clear();
         requirementTemplate.inject(requirementTemplate.items.length, 'science', 1, 1);
-        $scope.deviceMeta.inject(4, 'Academic Server', 'An extremely powerful server designed to do statistical analysis.', 'fa fa-university', '', 1e4, 15, 2e7, 1.11, 1.07, 2592e4, requirementTemplate.items);
+        $scope.deviceMeta.inject(4, 'Academic Server', 'An extremely powerful server designed to do statistical analysis.', 'fa fa-university', '', 256e4, 15, 32e7, 1.11, 1.07, 2592e4, requirementTemplate.items);
         $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(4));
 
         requirementTemplate.clear();
         requirementTemplate.inject(requirementTemplate.items.length, 'science', 1, 1);
         requirementTemplate.inject(requirementTemplate.items.length, 'science', 2, 1);
-        $scope.deviceMeta.inject(5, 'Government Server', 'A government supercomputer that puts common computing to shame.', 'fa fa-gavel', '', 1e5, 21, 2e8, 1.12, 1.065, 15552e5, requirementTemplate.items);
+        $scope.deviceMeta.inject(5, 'Government Server', 'A government supercomputer that puts common computing to shame.', 'fa fa-gavel', '', 1024e5, 21, 64e8, 1.12, 1.065, 15552e5, requirementTemplate.items);
         $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(5));
 
         requirementTemplate.clear();
         requirementTemplate.inject(requirementTemplate.items.length, 'science', 1, 1);
         requirementTemplate.inject(requirementTemplate.items.length, 'science', 2, 1);
-        $scope.deviceMeta.inject(6, 'Nanocomputer', 'A privately developed nanoscopic machine with incredible processing power.', 'fa fa-microchip', '', 1e6, 28, 2e9, 1.13, 1.06, 93312e6, requirementTemplate.items);
+        $scope.deviceMeta.inject(6, 'Nanocomputer', 'A privately developed nanoscopic machine with incredible processing power.', 'fa fa-microchip', '', 4096e6, 28, 128e9, 1.13, 1.06, 93312e6, requirementTemplate.items);
         $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(6));
 
         requirementTemplate.clear();
         requirementTemplate.inject(requirementTemplate.items.length, 'science', 1, 1);
         requirementTemplate.inject(requirementTemplate.items.length, 'science', 2, 1);
         requirementTemplate.inject(requirementTemplate.items.length, 'science', 3, 1);
-        $scope.deviceMeta.inject(7, 'Quantum Computer', 'A world-collaborative physical marvel, capable of moving vast amounts of data.', 'fa fa-ravelry', '', 1e7, 36, 2e10, 1.14, 1.55, 559872e7, requirementTemplate.items);
+        $scope.deviceMeta.inject(7, 'Quantum Computer', 'A world-collaborative physical marvel, capable of moving vast amounts of data.', 'fa fa-ravelry', '', 1e7, 36, 256e10, 1.14, 1.055, 559872e7, requirementTemplate.items);
         $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(7));
 
         if ($localStorage.deviceMeta !== undefined && !forceReset) {
