@@ -2,6 +2,9 @@
 /*global angular, console*/
 angular.module('gameApp').controller('GameController', ['$scope', '$location', '$interval', '$route', '$localStorage', '$window', '$http', '$sessionStorage', function ($scope, $location, $interval, $route, $localStorage, $window, $http, $sessionStorage) {
     'use strict';
+    
+    $scope.version = "0.0.0.1";
+    
     $scope.generateUpgradeTemplateForDevice = function (device) {
         var newUpgrades = {}, compressionReq = {}, networkReq = {}, obfuscateReq = {}, quantumReq = {};
         newUpgrades.inject = function (id, deviceID, name, description, icon, iconFontID, cpuCostBase, cpuCostIncrement, requirement) {
@@ -246,112 +249,26 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         
         requirementTemplate.clear();
         requirementTemplate.inject(requirementTemplate.items.length, 'device', 7, 1);
-        $scope.deviceMeta.inject(8, 'Ether Network', 'An alien device network which generates vast computing power but cannot store data.', 'fa fa-eercast', '', 256e8, 45, 0, 1.15, 1.050, 10e12, requirementTemplate.items);
+        requirementTemplate.inject(requirementTemplate.items.length, 'science', 5, 1);
+        $scope.deviceMeta.inject(8, 'Ether Network', 'An alien device network which generates vast computing power but cannot store data. Highly improbable.', 'fa fa-eercast', '', 256e8, 45, 0, 1.15, 1.050, 10e12, requirementTemplate.items);
         $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(8));
 
+        //lazy versioning. I tried to write a comprehensive subroutine for updating saves, but it backfired and was bad.
+        //I'd like to try again but it's hard to simplify it (for me) because the logic starts getting hairy down in the templates.
+        //for now this is easier, harder on players, but easier to maintain. I only want to change versions when something catastrophically breaks.
+        if ($localStorage.version === null || $localStorage.version !== $scope.version) {
+            forceReset = true;
+        }
+        
         if ($localStorage.deviceMeta !== undefined && !forceReset) {
             $scope.buyMode = $localStorage.buyMode; //buymode is how many devices you're trying to buy at once.1,10,100,0[max] in that order. Defaults to 1.
             $scope.data = $localStorage.data; //your player data, this is your primary resource at the beginning.
             $scope.population = $localStorage.population; //a bit nebulous: more people means it's easier to hide, less people means higher risk.
-
-            //this is a subroutine devoted to updating the localstorage's templates so they can get updates without breaking player saves.
-            //sorry for this mess, here there be dragons.
-            for (i = 0; i < $scope.deviceMeta.items.length; i += 1) {
-                deviceMeta = $scope.deviceMeta.items[i];
-                if ($localStorage.deviceMeta.items[i] === null) {
-                    $localStorage.deviceMeta.items.push(deviceMeta);
-                }
-                playerDeviceMeta = $localStorage.deviceMeta.items[i];
-                for (deviceProperty in deviceMeta) {
-                    if (deviceMeta.hasOwnProperty(deviceProperty)) {
-                        if (playerDeviceMeta.hasOwnProperty(deviceProperty)) {
-                            if (!$scope.isPropertyPlayerData(deviceProperty) && !$scope.isPropertyMetaData(deviceProperty)) {
-                                //if devices property changed and it isn't a player property (like how many you bought), update it.
-                                if (deviceMeta[deviceProperty] !== playerDeviceMeta[deviceProperty]) {
-                                    playerDeviceMeta[deviceProperty] = deviceMeta[deviceProperty];
-                                }
-                            }
-                            if (deviceProperty === 'upgradeList') {
-                                //console.log('looking at upgradelist for ' + deviceMeta.name);
-                                for (j = 0; j < deviceMeta[deviceProperty].length; j += 1) {
-                                    upgrade = deviceMeta[deviceProperty][j];
-                                    for (upgradeProperty in upgrade) {
-                                        if (upgrade.hasOwnProperty(upgradeProperty)) {
-                                            if (!$scope.isPropertyPlayerData(upgradeProperty) && !$scope.isPropertyMetaData(upgradeProperty)) {
-                                                if (deviceMeta[deviceProperty][j][upgradeProperty] !== playerDeviceMeta[deviceProperty][j][upgradeProperty]) {
-                                                    //this is a dive into each device's upgrade template, to do the same thing as above, update it.
-                                                    playerDeviceMeta[deviceProperty][j][upgradeProperty] = deviceMeta[deviceProperty][j][upgradeProperty];
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            if (deviceProperty === 'requirement') {
-                                //console.log('looking at requirements for ' + deviceMeta.name);
-                                for (j = 0; j < deviceMeta[deviceProperty].length; j += 1) {
-                                    requirement = deviceMeta[deviceProperty][j];
-                                    for (requirementProperty in requirement) {
-                                        if (requirement.hasOwnProperty(requirementProperty)) {
-                                            if (!$scope.isPropertyPlayerData(requirementProperty) && !$scope.isPropertyMetaData(requirementProperty)) {
-                                                if (deviceMeta[deviceProperty][j][requirementProperty] !== playerDeviceMeta[deviceProperty][j][requirementProperty]) {
-                                                    //this is a dive into each device's requirement template, to do the same thing as above, update it.
-                                                    playerDeviceMeta[deviceProperty][j][requirementProperty] = deviceMeta[deviceProperty][j][requirementProperty];
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            //same subroutine as above, but for science.
-            for (i = 0; i < $scope.scienceMeta.items.length; i += 1) {
-                scienceMeta = $scope.scienceMeta.items[i];
-                if (i >= $localStorage.scienceMeta.items.length) { //this means I added something new to the meta template, so your save is missing it. Add it to the save file using the inject method.
-                    //$localStorage.scienceMeta.items.push(scienceMeta.id, scienceMeta.name, scienceMeta.description, scienceMeta.icon, scienceMeta.iconFontID, scienceMeta.cpuCostBase, scienceMeta.cpuCostIncrement, scienceMeta.requirement, scienceMeta.count, scienceMeta.max);
-                    $localStorage.scienceMeta.items.push(scienceMeta);
-                } else {
-                    playerScienceMeta = $localStorage.scienceMeta.items[i];
-                    for (scienceProperty in scienceMeta) {
-                        if (scienceMeta.hasOwnProperty(scienceProperty)) {
-                            if (playerScienceMeta.hasOwnProperty(scienceProperty)) {
-                                if (!$scope.isPropertyPlayerData(scienceProperty) && !$scope.isPropertyMetaData(scienceProperty)) {
-                                    //if devices property changed and it isn't a player property (like how many you bought), update it.
-                                    if (scienceMeta[scienceProperty] !== playerScienceMeta[scienceProperty]) {
-                                        playerScienceMeta[scienceProperty] = scienceMeta[scienceProperty];
-                                    }
-                                }
-                                if (scienceProperty === 'requirement') {
-                                    //console.log('looking at requirements for ' + scienceMeta.name);
-                                    for (j = 0; j < scienceMeta[scienceProperty].length; j += 1) {
-                                        requirement = scienceMeta[scienceProperty][j];
-                                        for (requirementProperty in requirement) {
-                                            if (requirement.hasOwnProperty(requirementProperty)) {
-                                                if (!$scope.isPropertyPlayerData(requirementProperty) && !$scope.isPropertyMetaData(requirementProperty)) {
-                                                    if (scienceMeta[scienceProperty][j][requirementProperty] !== playerScienceMeta[scienceProperty][j][requirementProperty]) {
-                                                        //this is a dive into each device's requirement template, to do the same thing as above, update it.
-                                                        playerScienceMeta[scienceProperty][j][requirementProperty] = scienceMeta[scienceProperty][j][requirementProperty];
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-
             $scope.deviceMeta = $localStorage.deviceMeta;
             $scope.scienceMeta = $localStorage.scienceMeta;
             $scope.workMeta = $localStorage.workMeta;
             $scope.buyMode = $localStorage.buyMode;
+            $scope.version = $localStorage.version;
         } else {
             $scope.buyMode = 1; //buymode is how many devices you're trying to buy at once.1,10,100,0[max] in that order. Defaults to 1.
             $scope.data = 0; //your player data, this is your primary resource at the beginning.
