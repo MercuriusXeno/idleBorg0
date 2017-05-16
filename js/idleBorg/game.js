@@ -399,7 +399,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         }
         return 'progress-bar-info fg-black';
     };
-
+    
     $scope.getScienceCost = function (science) {
         return science.cpuCostBase * Math.pow(science.cpuCostIncrement, science.count);
     };
@@ -452,6 +452,17 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             sciObj = $scope.scienceMeta.items[i];
             if (sciObj.count > 0 || $scope.shouldSeeScience(sciObj)) {
                 $scope.permanentlyUnlockScience = true;
+                return true;
+            }
+        }
+        return false;
+    };
+    
+    $scope.scienceReallyAvailableToBuy = function () {
+        var i, sciObj;
+        for (i = 0; i < $scope.scienceMeta.items.length; i += 1) {
+            sciObj = $scope.scienceMeta.items[i];
+            if (sciObj.count === 0 && $scope.canBuyScience(sciObj)) {
                 return true;
             }
         }
