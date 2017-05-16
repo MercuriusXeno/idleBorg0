@@ -6,7 +6,7 @@ html {
     min-height: 100%;
 }
 
-body {  
+body {
     color: #ffffff;
     background: transparent;
     box-shadow: 0 0 2pt rgba(0, 0, 0, 0.06);
@@ -140,7 +140,7 @@ img {
     min-width: 366px;
     flex-flow: row wrap;
     margin: auto;
-    
+
 }
 
 .btn-device-card-wrapper {
@@ -152,7 +152,7 @@ img {
 }
 
 .btn-device-info-wrapper {
-    position: relative;  
+    position: relative;
     left: 85px;
     min-width: 360px;
     max-width: 360px;
@@ -165,7 +165,7 @@ img {
     flex-direction: column;
     margin: auto;
     padding-top: 18px;
-    font-size: 60pt;
+    font-size: 54pt;
     min-width: 80px;
     max-width: 80px;
     min-height: 132px;
@@ -183,8 +183,8 @@ img {
 }
 
 .btn-device-buy {
-    font-size: 14pt;    
-    position:absolute;    
+    font-size: 14pt;
+    position:absolute;
     color: gold;
     left: 5px;
     top: 5px;
@@ -206,7 +206,7 @@ img {
     left: 20px;
 }
 
-.btn-upgrade-wrapper {    
+.btn-upgrade-wrapper {
     border-style: solid !important;
     border-color: white;
     border-width: 1px;
@@ -230,7 +230,7 @@ img {
 
 .btn-upgrade-image {
     position: relative;
-    font-size: 22pt;   
+    font-size: 22pt;
     color: white !important;
     pointer-events: none;
 }
@@ -240,7 +240,7 @@ img {
     bottom: -2px;
     right: 2px;
     font-size: 10pt;
-    color: white;    
+    color: white;
     pointer-events: none;
     box-shadow: 2px;
 }
@@ -259,12 +259,12 @@ img {
     line-height: 16pt;
     font-size: 12pt;
     position: absolute;
-    left: 190px;    
+    left: 190px;
     max-width: 80px;
 }
 
 .science-items-wrapper {
-    display: flex;    
+    display: flex;
 }
 
 .science-item {
@@ -391,10 +391,10 @@ img {
     background-color: gray;
 }
 
-.progress-label-left {    
+.progress-label-left {
     position: absolute;
     top: 14px;
     left: 180px;
     text-align: center;
-    transform: translate(-50%, -50%);    
+    transform: translate(-50%, -50%);
 }

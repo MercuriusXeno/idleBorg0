@@ -1,6 +1,6 @@
 <ul class="nav nav-pills">
     <li>
-        <div tooltips tooltip-template="{{ getNameForTooltip('Data') }}: Take over devices and gain more brain power." 
+        <div tooltips tooltip-template="{{ getNameForTooltip('Data') }}: Take over devices and gain more brain power."
              tooltip-side="bottom-right" tooltip-speed="fast">
             <a href="#/data">
                 <i class="fa fa-database btn-tab" ng-class="selectedTab === 'data' ? 'fg-black btn-tab-selected' : 'fg-orange'" ng-click="setTab('data')">
@@ -10,7 +10,7 @@
         </div>
     </li>
     <li>
-        <div ng-show="scienceAvailable()" tooltips tooltip-template="{{ getNameForTooltip('Science') }}: Spend resources to unlock technology" 
+        <div ng-show="scienceAvailable()" tooltips tooltip-template="{{ getNameForTooltip('Science') }}: Spend resources to unlock technology"
              tooltip-side="bottom" tooltip-speed="fast">
             <a href="#/science" ng-click="setTab('science')">
                 <i class="ion ion-beaker btn-tab" ng-class="selectedTab === 'science' ? 'fg-black btn-tab-selected' : (scienceReallyAvailableToBuy() ? 'fg-red' : 'fg-cyan')" ><span>&nbsp;Science</span></i>
@@ -24,7 +24,7 @@
     </li>
     <li>
         <div>
-            <a href="#/build" ng-click="setTab('build')" tooltips tooltip-template="{{ getNameForTooltip('Build') }}: task your robots with building" 
+            <a href="#/build" ng-click="setTab('build')" tooltips tooltip-template="{{ getNameForTooltip('Build') }}: task your robots with building"
                tooltip-side="bottom" tooltip-speed="fast" ng-show="robots > 0">
                 <i class="ion ion-hammer btn-tab" ng-class="selectedTab === 'build' ? 'fg-black btn-tab-selected' : 'fg-green'">
                     <span>&nbsp;Build</span>
@@ -34,19 +34,19 @@
     </li>
     <li>
         <div>
-            <a href="#/evolve" ng-click="setTab('evolve')" tooltips tooltip-template="{{ getNameForTooltip('Evolve') }}: spend AP to advance faster" 
+            <a href="#/evolve" ng-click="setTab('evolve')" tooltips tooltip-template="{{ getNameForTooltip('Evolve') }}: spend AP to advance faster"
                tooltip-side="bottom" tooltip-speed="fast" ng-show="apriori > 0"><i class="ion ion-ios-infinite btn-tab" ng-class="selectedTab === 'evolve' ? 'fg-white' : 'fg-yellow'"><span>&nbsp;Evolve</span></i></a>
         </div>
     </li>
     <li>
         <div>
-            <a href="#/welcome" ng-click="setTab('welcome')" tooltips tooltip-template="{{ getNameForTooltip('Welcome') }}: How to play" 
+            <a href="#/welcome" ng-click="setTab('welcome')" tooltips tooltip-template="{{ getNameForTooltip('Welcome') }}: How to play"
                tooltip-side="bottom" tooltip-speed="fast"><i class="ion ion-help btn-tab" ng-class="selectedTab === 'welcome' ? 'fg-white' : 'fg-lightblue'"><span>&nbsp;Help</span></i></a>
         </div>
     </li>
     <li>
         <div class="fa-pull-right">
-            <a href="#/settings" tooltips tooltip-template="{{ getNameForTooltip('Settings') }}: Configuration and options" 
+            <a href="#/settings" tooltips tooltip-template="{{ getNameForTooltip('Settings') }}: Configuration and options"
                tooltip-side="bottom" tooltip-speed="fast">
                 <i class="fa fa-cog btn-tab fg-gray">
                     <span>&nbsp;Settings</span>
@@ -59,12 +59,12 @@
 <div class="row">
     <div class="col-xs-12">
         <div class="progress fg-black" style="height: 30px; line-height: 14px; font-size: 14px;">
-            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="{{ data }}" 
-                 aria-valuemin="0" aria-valuemax="{{ getDeviceStorageMax() }}" ng-style="{width: (getStoragePercentage() + '%')}" 
-                 ng-class="getFillColor(data / getDeviceStorageMax())" style="line-height: 14px;" >            
+            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="{{ data }}"
+                 aria-valuemin="0" aria-valuemax="{{ getDeviceStorageMax() }}" ng-style="{width: (getStoragePercentage() + '%')}"
+                 ng-class="getFillColor(data / getDeviceStorageMax())" style="line-height: 14px;" >
             </div>
-            <span class="progress-label-left">                
-                <span>{{ display(data) }}B/{{display(getDeviceStorageMax())}}B({{ display(getDeviceStorageMax() &gt; 0 ? (data * 100 / getDeviceStorageMax()) : 0) }})%</span>
+            <span class="progress-label-left">
+                <span>{{ display(data) }}B/{{display(getDeviceStorageMax())}}B({{ display(getDeviceStorageMax() &gt; 0 ? (data * 100 / getDeviceStorageMax()) : 0, true) }}%)</span>
                 <span>DPS: {{ display(getTicksPerSecond() * getTickCPU()) }}B/s</span>
             </span>
         </div>
