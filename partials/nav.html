@@ -19,7 +19,7 @@
     </li>
     <li>
         <div>
-            <a href="#/work" ng-click="setTab('work')" tooltips tooltip-template="{{ getNameForTooltip('Work') }}: exchange resources and unlock opportunities." tooltip-side="bottom" tooltip-speed="fast" ng-show="workAvailable()"><i class="ion ion-ios-briefcase btn-tab" ng-class="selectedTab === 'work' ? 'fg-white' : 'fg-red'"><span>&nbsp;Work</span></i></a>
+            <a href="#/work" ng-click="setTab('work')" tooltips tooltip-template="{{ getNameForTooltip('Work') }}: exchange resources and unlock opportunities." tooltip-side="bottom" tooltip-speed="fast" ng-show="workAvailable()"><i class="ion ion-ios-briefcase btn-tab" ng-class="selectedTab === 'work' ? 'fg-black btn-tab-selected' : 'fg-cyan'"><span>&nbsp;Work</span></i></a>
         </div>
     </li>
     <li>
@@ -35,20 +35,20 @@
     <li>
         <div>
             <a href="#/evolve" ng-click="setTab('evolve')" tooltips tooltip-template="{{ getNameForTooltip('Evolve') }}: spend AP to advance faster"
-               tooltip-side="bottom" tooltip-speed="fast" ng-show="apriori > 0"><i class="ion ion-ios-infinite btn-tab" ng-class="selectedTab === 'evolve' ? 'fg-white' : 'fg-yellow'"><span>&nbsp;Evolve</span></i></a>
+               tooltip-side="bottom" tooltip-speed="fast" ng-show="apriori > 0"><i class="ion ion-ios-infinite btn-tab" ng-class="selectedTab === 'evolve' ? 'fg-black btn-tab-selected' : 'fg-yellow'"><span>&nbsp;Evolve</span></i></a>
         </div>
     </li>
     <li>
         <div>
             <a href="#/welcome" ng-click="setTab('welcome')" tooltips tooltip-template="{{ getNameForTooltip('Welcome') }}: How to play"
-               tooltip-side="bottom" tooltip-speed="fast"><i class="ion ion-help btn-tab" ng-class="selectedTab === 'welcome' ? 'fg-white' : 'fg-lightblue'"><span>&nbsp;Help</span></i></a>
+               tooltip-side="bottom" tooltip-speed="fast"><i class="ion ion-help btn-tab" ng-class="selectedTab === 'welcome' ? 'fg-black btn-tab-selected' : 'fg-lightblue'"><span>&nbsp;Help</span></i></a>
         </div>
     </li>
     <li>
         <div class="fa-pull-right">
-            <a href="#/settings" tooltips tooltip-template="{{ getNameForTooltip('Settings') }}: Configuration and options"
+            <a href="#/settings" ng-click="setTab('settings')" tooltips tooltip-template="{{ getNameForTooltip('Settings') }}: Configuration and options"
                tooltip-side="bottom" tooltip-speed="fast">
-                <i class="fa fa-cog btn-tab fg-gray">
+                <i class="fa fa-cog btn-tab fg-gray" ng-class="selectedTab === 'settings' ? 'fg-black btn-tab-selected' : 'fg-gray'">
                     <span>&nbsp;Settings</span>
                 </i>
             </a>
