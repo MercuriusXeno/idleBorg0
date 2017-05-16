@@ -514,7 +514,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
 
     $scope.getDeviceClusteringFactor = function (device) {
         var scienceMeta = $scope.getScienceMeta(6);//clustering, if you have it, it's a permanent bonus to all devices.
-        return Math.pow(1.01, device.count);
+        return Math.pow(1.01, device.count * scienceMeta.count);
     };
 
     $scope.getDeviceNetworkFactor = function (device) {
