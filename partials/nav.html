@@ -10,7 +10,7 @@
         </div>
     </li>
     <li>
-        <div ng-show="scienceAvailable()" tooltips tooltip-template="{{ getNameForTooltip('Science') }}: spend resources to unlock technology" 
+        <div ng-show="scienceAvailable()" tooltips tooltip-template="{{ getNameForTooltip('Science') }}: Spend resources to unlock technology" 
              tooltip-side="bottom" tooltip-speed="fast">
             <a href="#/science" ng-click="setTab('science')">
                 <i class="ion ion-beaker btn-tab" ng-class="selectedTab === 'science' ? 'fg-black btn-tab-selected' : 'fg-cyan'" ><span>&nbsp;Science</span></i>
@@ -58,12 +58,14 @@
 <hr>
 <div class="row">
     <div class="col-xs-12">
-        <div class="progress fg-black" style="height: 24px; line-height: 12px;">
-            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="{{ data }}" aria-valuemin="0" aria-valuemax="{{ getDeviceStorageMax() }}" ng-style="{width: (getStoragePercentage() + '%')}" ng-class="getFillColor(data / getDeviceStorageMax())" style="line-height: 24px;" >            
+        <div class="progress fg-black" style="height: 30px; line-height: 14px; font-size: 14px;">
+            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="{{ data }}" 
+                 aria-valuemin="0" aria-valuemax="{{ getDeviceStorageMax() }}" ng-style="{width: (getStoragePercentage() + '%')}" 
+                 ng-class="getFillColor(data / getDeviceStorageMax())" style="line-height: 14px;" >            
             </div>
-            <span class="progress-label-left">
+            <span class="progress-label-left">                
+                <span>{{ display(data) }}B/{{display(getDeviceStorageMax())}}B({{ display(getDeviceStorageMax() &gt; 0 ? (data * 100 / getDeviceStorageMax()) : 0) }})%</span>
                 <span>DPS: {{ display(getTicksPerSecond() * getTickCPU()) }}B/s</span>
-                <span>{{ display(data) }}B / {{display(getDeviceStorageMax())}}B&nbsp;({{ display(getDeviceStorageMax() &gt; 0 ? (data * 100 / getDeviceStorageMax()) : 0) }})%</span>
             </span>
         </div>
     </div>

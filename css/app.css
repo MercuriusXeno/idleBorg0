@@ -111,12 +111,14 @@ img {
 
 .btn-disabled {
     background-color: #909090;
-    color: #303030
+    color: #303030;
+    pointer-events: none;
 }
 
 .btn-disabled:hover {
     background-color: #909090;
     color: #303030
+    pointer-events: none;
 }
 
 .no-padding {
@@ -132,11 +134,17 @@ img {
   transition: width 0.2s ease-in-out;
 }
 
+.card-container {
+    display: flex;
+    max-width: 1100px;
+    min-width: 366px;
+    flex-flow: row wrap;
+    margin: auto;
+    
+}
+
 .btn-device-card-wrapper {
-    min-height: 79px;
-    max-height: 79px;
-    min-width: 128px;
-    max-width: 960px;
+    display: flex;
 }
 
 .btn-device-wrapper {
@@ -146,18 +154,22 @@ img {
 .btn-device-info-wrapper {
     position: relative;  
     left: 85px;
-    min-height: 73px;
-    max-height: 73px;
-    min-width: 2700px;
-    max-width: 270px;
+    min-width: 360px;
+    max-width: 360px;
+    min-height: 146px;
+    max-height: 146px;
 }
 
 .btn-device {
-    font-size: 40pt;
-    min-width: 60px;
-    min-height: 60px;
-    max-width: 60px;
-    max-height: 60px;
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    padding-top: 18px;
+    font-size: 60pt;
+    min-width: 80px;
+    max-width: 80px;
+    min-height: 132px;
+    max-height: 132px;
     cursor: pointer;
 }
 
@@ -171,7 +183,7 @@ img {
 }
 
 .btn-device-buy {
-    font-size: 12pt;    
+    font-size: 14pt;    
     position:absolute;    
     color: gold;
     left: 5px;
@@ -191,54 +203,72 @@ img {
 
 .btn-upgrade-group {
     position: absolute;
+    left: 20px;
 }
 
-.btn-upgrade-wrapper {
+.btn-upgrade-wrapper {    
     border-style: solid !important;
     border-color: white;
     border-width: 1px;
-    min-height: 23px;
-    max-height: 23px;
-    min-width: 23px;
-    max-width: 23px;
+    min-height: 40px;
+    max-height: 40px;
+    min-width: 40px;
+    max-width: 40px;
+    cursor: pointer;
+    pointer-events: visible;
 }
 
 .btn-ghost {
     background-color: transparent;
     border-style: dotted !important;
-    min-height: 23px;
-    max-height: 23px;
-    min-width: 23px;
-    max-width: 23px;
+    border-width: 1px;
+    min-height: 40px;
+    max-height: 40px;
+    min-width: 40px;
+    max-width: 40px;
 }
 
 .btn-upgrade-image {
     position: relative;
-    font-size: 14pt;   
+    font-size: 22pt;   
     color: white !important;
+    pointer-events: none;
 }
 
 .btn-upgrade-count {
     position: absolute;
     bottom: -2px;
     right: 2px;
-    font-size: 8pt;
+    font-size: 10pt;
     color: white;    
     pointer-events: none;
+    box-shadow: 2px;
 }
 
 .device-card-text-left {
-    font-size: 10pt;
+    line-height: 20pt;
+    font-size: 12pt;
     position: absolute;
-    left: 2px;
-    top: 24px;
+    left: 25px;
+    top: 40px;
 }
 
 .device-card-text-right {
-    font-size: 10pt;
+    text-align: center;
+    margin: auto;
+    line-height: 16pt;
+    font-size: 12pt;
     position: absolute;
-    left: 170px;    
-    top 24px;
+    left: 190px;    
+    max-width: 80px;
+}
+
+.science-items-wrapper {
+    display: flex;    
+}
+
+.science-item {
+    margin: 4px;
 }
 
 .btn-science {
@@ -361,9 +391,10 @@ img {
     background-color: gray;
 }
 
-.progress-label-left {
+.progress-label-left {    
     position: absolute;
-    top: 10px;
-    left: 200px;
+    top: 14px;
+    left: 180px;
+    text-align: center;
     transform: translate(-50%, -50%);    
 }
