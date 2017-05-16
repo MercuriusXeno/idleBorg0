@@ -6,22 +6,11 @@ html {
     min-height: 100%;
 }
 
-body {
-    margin: 0 auto;
-    padding: 2pt 2pt 2pt;
-    max-width: 100%;
-    font-family: "Lucida Console", Monaco, monospace;
-    font-size: 16pt;
-    line-height: 16pt;
+body {  
     color: #ffffff;
     background: transparent;
     box-shadow: 0 0 2pt rgba(0, 0, 0, 0.06);
-}
-
-span {
-    font-family: "Lucida Console", Monaco, monospace;
-    font-size: 16pt;
-    line-height: 16pt;
+    font-family: "Lucida Console";
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -75,11 +64,6 @@ img {
     }
 }
 
-.col-xs-6 {
-    padding: 0px;
-    margin: 0px;
-}
-
 .btn-tab {
     font-size: 15pt;
     padding: 10pt;
@@ -91,21 +75,26 @@ img {
     color: #dddddd;
     background-color: #309090;
     border-color: #303030;
-    border: 2pt solid white;
+    border: 2pt solid;
     border-radius: 15pt;
 
 }
 
+.nav-pills span {
+    font-size: 12pt;
+    font-family: "Lucida Console";
+}
+
 .btn-primary {
     border-color: #303030;
-    text-shadow: 1pt 1pt 1pt rgba(0,0,0,0.5);
+    text-shadow: 0pt 0pt 0pt rgba(0,0,0,0.5);
 }
 
 .btn-primary:hover {
     color: #dddddd;
     background-color: #309090;
     border-color: #303030;
-    text-shadow: 2pt 2pt 2pt rgba(0,0,0,0.5);
+    text-shadow: 1pt 1pt 1pt rgba(0,0,0,0.5);
 }
 
 .btn-primary.btn-enabled:hover {
@@ -116,65 +105,89 @@ img {
 
 .btn-enabled {
     background-color: #119911;
-    text-shadow: 3pt 3pt 3pt rgba(0,0,0,0.5);
+    text-shadow: 1pt 1pt 1pt rgba(0,0,0,0.5);
     color: green;
 }
 
 .btn-disabled {
     background-color: #909090;
-    color: #303030
+    color: #303030;
+    pointer-events: none;
 }
 
 .btn-disabled:hover {
     background-color: #909090;
     color: #303030
+    pointer-events: none;
 }
 
-.btn-device {
-    font-size: 48pt;
-    cursor: pointer;
-    min-height: 60pt;
-    min-width: 60pt;
+.no-padding {
+    padding: 0px 0px 0px 0px;
+    margin: 0px 0px 0px 0px;
 }
 
 .progress {
   height: 3em;
-  i { line-height: 3.5em; }
 }
 
 .progress-bar {
-  transition: width 1s ease-in-out;
+  transition: width 0.2s ease-in-out;
 }
 
-.gauge-risk-container {
-    max-height: 64pt;
-    max-width: 64pt;
+.card-container {
+    display: flex;
+    max-width: 1100px;
+    min-width: 366px;
+    flex-flow: row wrap;
+    margin: auto;
+    
 }
 
-.risk-gauge {
-    stroke:red;
-    fill:red;
-    font-size: 11pt;
-    font-weight:100;
+.btn-device-card-wrapper {
+    display: flex;
+}
+
+.btn-device-wrapper {
+    position: absolute;
+}
+
+.btn-device-info-wrapper {
+    position: relative;  
+    left: 85px;
+    min-width: 360px;
+    max-width: 360px;
+    min-height: 146px;
+    max-height: 146px;
+}
+
+.btn-device {
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    padding-top: 18px;
+    font-size: 60pt;
+    min-width: 80px;
+    max-width: 80px;
+    min-height: 132px;
+    max-height: 132px;
+    cursor: pointer;
 }
 
 .btn-device-count {
-    font-size:16pt;
-    font-weight: 600;
+    font-size: 16pt;
     position:absolute;
-    top: 140%;
     color: white;
-    right: 10%;
+    bottom: 5px;
+    right: 5px;
     pointer-events: none;
 }
 
 .btn-device-buy {
-    font-size:12pt;
-    font-weight: 600;
-    position:absolute;
-    bottom: 130%;
+    font-size: 14pt;    
+    position:absolute;    
     color: gold;
-    left: 5%;
+    left: 5px;
+    top: 5px;
     pointer-events: none;
 }
 
@@ -188,6 +201,76 @@ img {
     pointer-events: none;
 }
 
+.btn-upgrade-group {
+    position: absolute;
+    left: 20px;
+}
+
+.btn-upgrade-wrapper {    
+    border-style: solid !important;
+    border-color: white;
+    border-width: 1px;
+    min-height: 40px;
+    max-height: 40px;
+    min-width: 40px;
+    max-width: 40px;
+    cursor: pointer;
+    pointer-events: visible;
+}
+
+.btn-ghost {
+    background-color: transparent;
+    border-style: dotted !important;
+    border-width: 1px;
+    min-height: 40px;
+    max-height: 40px;
+    min-width: 40px;
+    max-width: 40px;
+}
+
+.btn-upgrade-image {
+    position: relative;
+    font-size: 22pt;   
+    color: white !important;
+    pointer-events: none;
+}
+
+.btn-upgrade-count {
+    position: absolute;
+    bottom: -2px;
+    right: 2px;
+    font-size: 10pt;
+    color: white;    
+    pointer-events: none;
+    box-shadow: 2px;
+}
+
+.device-card-text-left {
+    line-height: 20pt;
+    font-size: 12pt;
+    position: absolute;
+    left: 25px;
+    top: 40px;
+}
+
+.device-card-text-right {
+    text-align: center;
+    margin: auto;
+    line-height: 16pt;
+    font-size: 12pt;
+    position: absolute;
+    left: 190px;    
+    max-width: 80px;
+}
+
+.science-items-wrapper {
+    display: flex;    
+}
+
+.science-item {
+    margin: 4px;
+}
+
 .btn-science {
     cursor: pointer;
 }
@@ -199,30 +282,6 @@ img {
 
 .btn-science-image {
     font-size: 48pt;
-}
-
-.btn-upgrade {
-    font-size:16pt;
-    cursor: pointer;
-}
-
-.btn-upgrade-image {
-    font-size: 16pt;
-}
-
-.btn-upgrade-count {
-    font-size:12pt;
-    font-weight: 600;
-    position:absolute;
-    top: 55%;
-    color: white;
-    right: 10%;
-    pointer-events: none;
-}
-
-.btn-ghost {
-    background-color: transparent;
-    border-style: dotted !important;
 }
 
 .tooltip-md {
@@ -249,12 +308,15 @@ img {
     border-radius: 10pt;
 }
 
-.btn-tab-selected {
-    background-color: gold;
+.round-borders-left {
+    border-bottom-left-radius: 8pt;
+    border-top-left-radius: 8pt;
+    border-top-right-radius: 0pt;
+    border-bottom-right-radius: 0pt;
 }
 
-.margin-5 {
-    margin: 5pt;
+.btn-tab-selected {
+    background-color: gold;
 }
 
 .fg-orange {
@@ -329,24 +391,10 @@ img {
     background-color: gray;
 }
 
-.font-md {
-    font-size: 12pt;
-}
-
-.progress-label-left {
+.progress-label-left {    
     position: absolute;
-    left: 15%;
-    top: 25%
-    top: 25%
-    transform: translate(-50%, -50%);
-    font-weight: bold;
-}
-
-.progress-label-right {
-    position: absolute;
-    left: 65%;
-    top: 25%
-    top: 25%
-    transform: translate(-50%, -50%);
-    font-weight: bold;
+    top: 14px;
+    left: 180px;
+    text-align: center;
+    transform: translate(-50%, -50%);    
 }
