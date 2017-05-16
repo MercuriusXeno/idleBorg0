@@ -421,6 +421,10 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         return $scope.data >= $scope.getScienceCost(science) && science.count < science.max;
     };
 
+    $scope.shouldSeeScience = function (science) {
+        return $scope.getScienceCost(science) <= $scope.data * 5;
+    };
+    
     $scope.getSuppressionCPUFactor = function (device) {
         //stub, placeholder for what will eventually be the suppression ability formula, which will let you reduce your risk by more than it reduces your CPU.
         //the base formula is going to be a slider from 0 to 100% that cuts CPU in half but cuts RISK by 75% for x% of a given device.
@@ -446,7 +450,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         var i, sciObj;
         for (i = 0; i < $scope.scienceMeta.items.length; i += 1) {
             sciObj = $scope.scienceMeta.items[i];
-            if (sciObj.count > 0 || $scope.canBuyScience(sciObj)) {
+            if (sciObj.count > 0 || $scope.shouldSeeScience(sciObj)) {
                 $scope.permanentlyUnlockScience = true;
                 return true;
             }
