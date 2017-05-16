@@ -2,9 +2,9 @@
 /*global angular, console*/
 angular.module('gameApp').controller('GameController', ['$scope', '$location', '$interval', '$route', '$localStorage', '$window', '$http', '$sessionStorage', function ($scope, $location, $interval, $route, $localStorage, $window, $http, $sessionStorage) {
     'use strict';
-    
+
     $scope.version = "0.0.0.1";
-    
+
     $scope.generateUpgradeTemplateForDevice = function (device) {
         var newUpgrades = {}, compressionReq = {}, networkReq = {}, obfuscateReq = {}, quantumReq = {};
         newUpgrades.inject = function (id, deviceID, name, description, icon, iconFontID, cpuCostBase, cpuCostIncrement, requirement) {
@@ -82,7 +82,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
     $scope.isPropertyMetaData = function (property) {
         return property === 'upgradeList'  || property === 'requirement';
     };
-    
+
     $scope.maxDataForDebugging = function () {
         $scope.data = $scope.getDeviceStorageMax();
     };
@@ -102,7 +102,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
                 value: value//the count must be this or higher
             });
         };
-        
+
         //debug mode! so I can test more rapidly
         if (window.location.href.indexOf("127.0.0.1") !== -1) {
             $scope.debugMode = true;
@@ -200,7 +200,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         $scope.scienceMeta.inject(3, 'Quantum Entanglement', 'Quickly scaling improvements to device performance on a global level. Effects are dependent on other quantum entanglement devices.', 'material-icons', 'timeline', 320e9, 1, {}, 1);
         $scope.scienceMeta.inject(4, 'Time Dilation', 'Increase the speed factor of your processors.', 'material-icons', 'fast_forward', 1e4, 2000, {}, 5);
         $scope.scienceMeta.inject(5, 'Improbability Generator', 'Capable of generating finite amounts of improbability.', 'material-icons', 'local_cafe', 7.2e14, 1, {}, 1);
-                
+
         requirementTemplate.clear();
         requirementTemplate.inject(requirementTemplate.items.length, 'science', 1, 1);
         $scope.scienceMeta.inject(6, 'Advanced Clustering', 'Devices now give a bonus for each tier based on how many devices you have. 1% per device, per level, multiplicative.', 'material-icons', 'shuffle', 120e6, 1000, {}, 5);
@@ -246,7 +246,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         requirementTemplate.inject(requirementTemplate.items.length, 'science', 3, 1);
         $scope.deviceMeta.inject(7, 'Quantum Computer', 'A world-collaborative physical marvel, capable of moving vast amounts of data.', 'fa fa-ravelry', '', 128e7, 36, 256e9, 1.14, 1.055, 559872e7, requirementTemplate.items);
         $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(7));
-        
+
         requirementTemplate.clear();
         requirementTemplate.inject(requirementTemplate.items.length, 'device', 7, 1);
         requirementTemplate.inject(requirementTemplate.items.length, 'science', 5, 1);
@@ -259,7 +259,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         if ($localStorage.version === null || $localStorage.version !== $scope.version) {
             forceReset = true;
         }
-        
+
         if ($localStorage.deviceMeta !== undefined && !forceReset) {
             $scope.buyMode = $localStorage.buyMode; //buymode is how many devices you're trying to buy at once.1,10,100,0[max] in that order. Defaults to 1.
             $scope.data = $localStorage.data; //your player data, this is your primary resource at the beginning.
@@ -296,6 +296,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         $localStorage.population = $scope.population;
         $localStorage.lastSaved = new Date().valueOf();
         $localStorage.permanentlyUnlockScience = $scope.permanentlyUnlockScience;
+        $localStorage.version = $scope.version;
     };
 
     $scope.load(false);
@@ -316,7 +317,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         }
         return 'progress-bar-info fg-black';
     };
-    
+
     $scope.getScienceCost = function (science) {
         return science.cpuCostBase * Math.pow(science.cpuCostIncrement, science.count);
     };
@@ -341,7 +342,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
     $scope.shouldSeeScience = function (science) {
         return $scope.getScienceCost(science) <= $scope.data * 5;
     };
-    
+
     $scope.getSuppressionCPUFactor = function (device) {
         //stub, placeholder for what will eventually be the suppression ability formula, which will let you reduce your risk by more than it reduces your CPU.
         //the base formula is going to be a slider from 0 to 100% that cuts CPU in half but cuts RISK by 75% for x% of a given device.
@@ -374,7 +375,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         }
         return false;
     };
-    
+
     $scope.scienceReallyAvailableToBuy = function () {
         var i, sciObj;
         for (i = 0; i < $scope.scienceMeta.items.length; i += 1) {
@@ -711,7 +712,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             return 'fg-gray';
         }
     };
-    
+
     //helps get the css class of the upgrade buttons which varies by progression.
     $scope.getUpgradeCSS = function (upgrade) {
         if ($scope.requirementsMet(upgrade.requirement)) {
@@ -724,7 +725,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             return 'btn-ghost';
         }
     };
-    
+
     $scope.getTooltipTemplateForUpgrade = function (upgrade) {
         var tooltip = $scope.getNameForTooltip(upgrade.name) + ': ';
         if ($scope.requirementsMet(upgrade.requirement)) {
