@@ -380,7 +380,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         var i, sciObj;
         for (i = 0; i < $scope.scienceMeta.items.length; i += 1) {
             sciObj = $scope.scienceMeta.items[i];
-            if (sciObj.count === 0 && $scope.canBuyScience(sciObj)) {
+            if ($scope.canBuyScience(sciObj)) {
                 return true;
             }
         }
