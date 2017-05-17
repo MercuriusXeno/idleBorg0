@@ -46,6 +46,10 @@ img {
     max-width: 99%;
 }
 
+tip-tip:hover {
+    display: none;
+}
+
 @-webkit-keyframes colorize {
     0% {
         -webkit-filter: grayscale(100%);
@@ -62,6 +66,16 @@ img {
     100% {
         filter: grayscale(0%);
     }
+}
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
 }
 
 .btn-tab {
@@ -112,13 +126,13 @@ img {
 .btn-disabled {
     background-color: #909090;
     color: #303030;
-    pointer-events: none;
+    pointer-events: none !important;
 }
 
 .btn-disabled:hover {
     background-color: #909090;
     color: #303030
-    pointer-events: none;
+    pointer-events: none !important;
 }
 
 .no-padding {
@@ -140,7 +154,6 @@ img {
     min-width: 366px;
     flex-flow: row wrap;
     margin: auto;
-
 }
 
 .btn-device-card-wrapper {
@@ -165,7 +178,7 @@ img {
     flex-direction: column;
     margin: auto;
     padding-top: 18px;
-    font-size: 54pt;
+    font-size: 55pt;
     min-width: 80px;
     max-width: 80px;
     min-height: 132px;
@@ -204,6 +217,7 @@ img {
 .btn-upgrade-group {
     position: absolute;
     left: 20px;
+    display: flex;
 }
 
 .btn-upgrade-wrapper {
@@ -215,7 +229,6 @@ img {
     min-width: 40px;
     max-width: 40px;
     cursor: pointer;
-    pointer-events: visible;
 }
 
 .btn-ghost {
@@ -232,7 +245,6 @@ img {
     position: relative;
     font-size: 22pt;
     color: white !important;
-    pointer-events: none;
 }
 
 .btn-upgrade-count {
@@ -241,7 +253,7 @@ img {
     right: 2px;
     font-size: 10pt;
     color: white;
-    pointer-events: none;
+    pointer-events: none  !important;
     box-shadow: 2px;
 }
 
@@ -262,6 +274,8 @@ img {
     left: 190px;
     max-width: 80px;
 }
+
+
 
 .science-items-wrapper {
     display: flex;
@@ -393,8 +407,7 @@ img {
 
 .progress-label-left {
     position: absolute;
-    top: 14px;
-    left: 180px;
-    text-align: center;
-    transform: translate(-50%, -50%);
+    top: 10px;
+    left: 40px;
+    font-weight: bold;
 }
