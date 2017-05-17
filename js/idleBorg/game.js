@@ -2,9 +2,9 @@
 /*global angular, console*/
 angular.module('gameApp').controller('GameController', ['$scope', '$location', '$interval', '$route', '$localStorage', '$window', '$http', '$sessionStorage', function ($scope, $location, $interval, $route, $localStorage, $window, $http, $sessionStorage) {
     'use strict';
-    
-    $scope.version = "0.0.0.1";
-    
+
+    $scope.version = "0.0.0.5";
+
     $scope.generateUpgradeTemplateForDevice = function (device) {
         var newUpgrades = {}, compressionReq = {}, networkReq = {}, obfuscateReq = {}, quantumReq = {};
         newUpgrades.inject = function (id, deviceID, name, description, icon, iconFontID, cpuCostBase, cpuCostIncrement, requirement) {
@@ -28,7 +28,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         compressionReq.inject(compressionReq.items.length, 'device', device.id, 10);//10 mobiles
         compressionReq.inject(compressionReq.items.length, 'science', 0, 1);//compression
         //this generates 8 stock templates, 1 for each device, and gives them names.
-        newUpgrades.inject(newUpgrades.items.length, device.id, 'Compression', 'Increase storage and data rates by 100% per level. Multiplicative.', 'material-icons', 'call_merge', 125 * device.cpuCostBase, 4, compressionReq.items);
+        newUpgrades.inject(newUpgrades.items.length, device.id, 'Compression', 'Increase storage 50% and DPS by 100%, per level. Multiplicative.', 'material-icons', 'call_merge', 125 * device.cpuCostBase, 4, compressionReq.items);
 
         networkReq.items = [];
         networkReq.inject = function (id, type, ref, value) { networkReq.items.push({id: id, type: type, ref: ref, value: value}); };
@@ -40,14 +40,14 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         obfuscateReq.inject = function (id, type, ref, value) { obfuscateReq.items.push({id: id, type: type, ref: ref, value: value}); };
         obfuscateReq.inject(obfuscateReq.items.length, 'device', device.id, 50);
         obfuscateReq.inject(obfuscateReq.items.length, 'science', 2, 1);//network security
-        newUpgrades.inject(newUpgrades.items.length, device.id, 'Encryption', 'Reduce your risk by a factor of 2 per level, multiplicative.', 'material-icons', 'shuffle', 50e3 * device.cpuCostBase, 5, obfuscateReq.items);
+        newUpgrades.inject(newUpgrades.items.length, device.id, 'Encryption', 'Cuts your risk in half per level, multiplicative.', 'material-icons', 'shuffle', 50e3 * device.cpuCostBase, 5, obfuscateReq.items);
 
         quantumReq.items = [];
         quantumReq.inject = function (id, type, ref, value) { quantumReq.items.push({id: id, type: type, ref: ref, value: value}); };
         quantumReq.inject(quantumReq.items.length, 'device', device.id, 100);
         quantumReq.inject(quantumReq.items.length, 'device', 7, 1);//you must have at least 1 quantum computer.
         quantumReq.inject(quantumReq.items.length, 'science', 3, 1);//quantum entanglement
-        newUpgrades.inject(newUpgrades.items.length, device.id, 'Quantum Entanglement', 'Increase device power based on overall entanglement and reduce risk.', 'material-icons', 'timeline', 100e4 * device.cpuCostBase, 5.5, quantumReq.items);
+        newUpgrades.inject(newUpgrades.items.length, device.id, 'Quantum Entanglement', 'Increase device power based on overall entanglement of lesser devices, and reduce risk.', 'material-icons', 'timeline', 100e4 * device.cpuCostBase, 5.5, quantumReq.items);
 
         device.upgradeList = newUpgrades.items;
     };
@@ -82,7 +82,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
     $scope.isPropertyMetaData = function (property) {
         return property === 'upgradeList'  || property === 'requirement';
     };
-    
+
     $scope.maxDataForDebugging = function () {
         $scope.data = $scope.getDeviceStorageMax();
     };
@@ -102,7 +102,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
                 value: value//the count must be this or higher
             });
         };
-        
+
         //debug mode! so I can test more rapidly
         if (window.location.href.indexOf("127.0.0.1") !== -1) {
             $scope.debugMode = true;
@@ -194,63 +194,81 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         };
 
         //this is where I'm creating the science types for the player to research, their descriptions, requirements, etc.
-        $scope.scienceMeta.inject(0, 'Compression', 'Improve storage by shrinking data, and increase throughput. Enables Compression on each device: 100% per level, multiplicative.<br />', 'material-icons', 'call_merge', 5e3, 1, {}, 1);
-        $scope.scienceMeta.inject(1, 'Optimization', 'Use clustering to turn network loss into gains. Enables Optimization on each device, improving network efficiency by 10% per level, additive.', 'material-icons', 'call_split', 20e5, 1, {}, 1);
-        $scope.scienceMeta.inject(2, 'Encryption', 'Reduce the likelihood of being detected, allowing you to spread further. Enables Encryption on each device, cuts risk factor in half each level.', 'material-icons', 'shuffle', 80e7, 1, {}, 1);
-        $scope.scienceMeta.inject(3, 'Quantum Entanglement', 'Quickly scaling improvements to device performance on a global level. Effects are dependent on other quantum entanglement devices.', 'material-icons', 'timeline', 320e9, 1, {}, 1);
-        $scope.scienceMeta.inject(4, 'Time Dilation', 'Increase the speed factor of your processors.', 'material-icons', 'fast_forward', 1e4, 2000, {}, 5);
-        $scope.scienceMeta.inject(5, 'Improbability Generator', 'Capable of generating finite amounts of improbability.', 'material-icons', 'local_cafe', 7.2e14, 1, {}, 1);
-                
+        requirementTemplate.clear();
+        $scope.scienceMeta.inject(0, 'Compression', 'Enables Compression on each device: 50% storage and 100% DPS bonus per level, multiplicative.<br />', 'material-icons', 'call_merge', 5e3, 1, {}, 1);
+
+        requirementTemplate.clear();
+        $scope.scienceMeta.inject(1, 'Optimization', 'Enables Optimization on each device, improving network efficiency by 10% per level, additive.', 'material-icons', 'call_split', 20e5, 1, {}, 1);
+
+        requirementTemplate.clear();
+        $scope.scienceMeta.inject(2, 'Encryption', 'Enables Encryption on each device, cuts risk factor in half each level.', 'material-icons', 'shuffle', 80e7, 1, {}, 1);
+
+        requirementTemplate.clear();
+        $scope.scienceMeta.inject(3, 'Quantum Entanglement', 'Enable Quantum Entanglement on each device; reducing risk as well as improving DPS by the entanglement of all lesser devices.', 'material-icons', 'timeline', 320e9, 1, {}, 1);
+
+        requirementTemplate.clear();
+        $scope.scienceMeta.inject(4, 'Time Dilation', 'Double the speed of your processors; increases time resolution.', 'material-icons', 'fast_forward', 1e4, 3000, {}, 5);
+
+        requirementTemplate.clear();
+        $scope.scienceMeta.inject(5, 'Improbability Generator', 'Capable of generating finite amounts of improbability, but no tea.', 'material-icons', 'local_cafe', 7.2e16, 1, {}, 1);
+
         requirementTemplate.clear();
         requirementTemplate.inject(requirementTemplate.items.length, 'science', 1, 1);
-        $scope.scienceMeta.inject(6, 'Advanced Clustering', 'Devices now give a bonus for each tier based on how many devices you have. 1% per device, per level, multiplicative.', 'material-icons', 'shuffle', 120e6, 1000, {}, 5);
+        $scope.scienceMeta.inject(6, 'Advanced Clustering', 'Devices now give a bonus for each tier based on how many devices you have. 1% per device, per level, multiplicative.', 'material-icons', 'device_hub', 120e6, 200000, {}, 2);
+
+        requirementTemplate.clear();
+        $scope.scienceMeta.inject(7, 'Purposeful Redundancy', 'Each device tier storage is increased by 10% for each device, per level. Additive.', 'material-icons', 'cloud_queue', 7000e5, 80, {}, 5);
+
+        requirementTemplate.clear();
+        $scope.scienceMeta.inject(8, 'Active Refactoring', 'Your storage grows naturally by 1% of your DPS, per level.', 'material-icons', 'cloud_upload', 320e5, 80, {}, 5);
+
+        requirementTemplate.clear();
+        $scope.scienceMeta.inject(9, 'Chronic Migraines', 'Your mobile devices deter users, severely reducing risk and greatly increasing storage (99% Risk reduction, 100x storage).', 'material-icons', 'sentiment_very_dissatisfied', 15552e5, 1, {}, 1);
+
+        requirementTemplate.clear();
+        $scope.scienceMeta.inject(10, 'Burnt Pixels', 'Your personal computing devices deter users, severely reducing risk and greatly increasing storage (99% Risk reduction, 100x storage).', 'material-icons', 'remove_from_queue', 80e9, 1, {}, 1);
+
 
         //devices, how much they cost, descriptions, template stuff.
         //when a device has requirements, the requirements template gets cleared() and then I inject the requirements into it, prior to
         //creating that object as a property inside the device's meta, which effectively clones it. I reuse the requirementTemplate repeatedly.
         //the upgrade template method is similar, it creates the same upgrade template for each item, but it does it by ID so we can track them separately.
+        requirementTemplate.clear();
         $scope.deviceMeta.inject(0, 'Mobile', 'Portability and proximity to users makes mobile devices risky to hold.', 'material-icons', 'smartphone', 1, 1, 2e2, 1.07, 1.09, 2, {});
         $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(0));
 
-        $scope.deviceMeta.inject(1, 'Personal', 'Private computer access has improved risk factor over mobile devices.', 'material-icons', 'laptop', 20, 3, 4e3, 1.08, 1.085, 120, {});
+        requirementTemplate.clear();
+        $scope.deviceMeta.inject(1, 'Personal', 'Private computer access has improved risk factor over mobile devices.', 'material-icons', 'laptop', 20, 3, 4e3, 1.075, 1.09, 120, {});
         $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(1));
 
-        $scope.deviceMeta.inject(2, 'Workstation', 'Designed for multitasking. Exploited stacks are safe and very powerful.', 'fa fa-server', '', 4e2, 6, 8e4, 1.09, 1.08, 7200, {});
+        requirementTemplate.clear();
+        $scope.deviceMeta.inject(2, 'Workstation', 'Designed for multitasking. Exploited stacks are safe and very powerful.', 'fa fa-server', '', 4e2, 6, 8e4, 1.08, 1.09, 7200, {});
         $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(2));
 
         requirementTemplate.clear();
-        requirementTemplate.inject(requirementTemplate.items.length, 'science', 1, 1);
-        $scope.deviceMeta.inject(3, 'Database', 'A database built for moving large amounts of information, very fast.', 'fa fa-database', '', 8e3, 10, 16e5, 1.10, 1.075, 432e3, requirementTemplate.items);
+        $scope.deviceMeta.inject(3, 'Database', 'A database built for moving large amounts of information, very fast.', 'fa fa-database', '', 8e3, 10, 16e5, 1.085, 1.08, 432e3, requirementTemplate.items);
         $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(3));
 
         requirementTemplate.clear();
-        requirementTemplate.inject(requirementTemplate.items.length, 'science', 1, 1);
-        $scope.deviceMeta.inject(4, 'Academic Server', 'An extremely powerful server designed to do statistical analysis.', 'fa fa-university', '', 16e4, 15, 32e6, 1.11, 1.07, 2592e4, requirementTemplate.items);
+        $scope.deviceMeta.inject(4, 'Academic Server', 'An extremely powerful server designed to do statistical analysis.', 'fa fa-university', '', 16e4, 15, 32e6, 1.09, 1.08, 2592e4, requirementTemplate.items);
         $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(4));
 
         requirementTemplate.clear();
-        requirementTemplate.inject(requirementTemplate.items.length, 'science', 1, 1);
-        requirementTemplate.inject(requirementTemplate.items.length, 'science', 2, 1);
-        $scope.deviceMeta.inject(5, 'Government Server', 'A government supercomputer that puts common computing to shame.', 'fa fa-gavel', '', 32e5, 21, 64e7, 1.12, 1.065, 15552e5, requirementTemplate.items);
+        $scope.deviceMeta.inject(5, 'Government Server', 'A government supercomputer that puts common computing to shame.', 'fa fa-gavel', '', 32e5, 21, 64e7, 1.095, 1.08, 15552e5, requirementTemplate.items);
         $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(5));
 
         requirementTemplate.clear();
-        requirementTemplate.inject(requirementTemplate.items.length, 'science', 1, 1);
-        requirementTemplate.inject(requirementTemplate.items.length, 'science', 2, 1);
-        $scope.deviceMeta.inject(6, 'Nanocomputer', 'A privately developed nanoscopic machine with incredible processing power.', 'fa fa-microchip', '', 64e6, 28, 128e8, 1.13, 1.06, 93312e6, requirementTemplate.items);
+        $scope.deviceMeta.inject(6, 'Nanocomputer', 'A privately developed nanoscopic machine with incredible processing power.', 'fa fa-microchip', '', 64e6, 28, 128e8, 1.1, 1.07, 93312e6, requirementTemplate.items);
         $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(6));
 
         requirementTemplate.clear();
-        requirementTemplate.inject(requirementTemplate.items.length, 'science', 1, 1);
-        requirementTemplate.inject(requirementTemplate.items.length, 'science', 2, 1);
         requirementTemplate.inject(requirementTemplate.items.length, 'science', 3, 1);
-        $scope.deviceMeta.inject(7, 'Quantum Computer', 'A world-collaborative physical marvel, capable of moving vast amounts of data.', 'fa fa-ravelry', '', 128e7, 36, 256e9, 1.14, 1.055, 559872e7, requirementTemplate.items);
+        $scope.deviceMeta.inject(7, 'Quantum Computer', 'A world-collaborative physical marvel, capable of moving vast amounts of data.', 'fa fa-ravelry', '', 128e7, 36, 256e9, 1.105, 1.07, 559872e7, requirementTemplate.items);
         $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(7));
-        
+
         requirementTemplate.clear();
-        requirementTemplate.inject(requirementTemplate.items.length, 'device', 7, 1);
         requirementTemplate.inject(requirementTemplate.items.length, 'science', 5, 1);
-        $scope.deviceMeta.inject(8, 'Ether Network', 'An alien device network which generates vast computing power but cannot store data. Highly improbable.', 'fa fa-eercast', '', 256e8, 45, 0, 1.15, 1.050, 10e12, requirementTemplate.items);
+        $scope.deviceMeta.inject(8, 'Ether Network', 'An alien device network which generates vast computing power but cannot store data. Highly improbable.', 'fa fa-eercast', '', 256e8, 45, 0, 1.11, 1.07, 10e12, requirementTemplate.items);
         $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(8));
 
         //lazy versioning. I tried to write a comprehensive subroutine for updating saves, but it backfired and was bad.
@@ -259,7 +277,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         if ($localStorage.version === null || $localStorage.version !== $scope.version) {
             forceReset = true;
         }
-        
+
         if ($localStorage.deviceMeta !== undefined && !forceReset) {
             $scope.buyMode = $localStorage.buyMode; //buymode is how many devices you're trying to buy at once.1,10,100,0[max] in that order. Defaults to 1.
             $scope.data = $localStorage.data; //your player data, this is your primary resource at the beginning.
@@ -269,10 +287,12 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             $scope.workMeta = $localStorage.workMeta;
             $scope.buyMode = $localStorage.buyMode;
             $scope.version = $localStorage.version;
+            $scope.refactoredStorage = $localStorage.refactoredStorage;
         } else {
             $scope.buyMode = 1; //buymode is how many devices you're trying to buy at once.1,10,100,0[max] in that order. Defaults to 1.
             $scope.data = 0; //your player data, this is your primary resource at the beginning.
             $scope.population = 8e9;
+            $scope.refactoredStorage = 0;
         }
         $scope.resetGameInterval();
         $scope.displayStorageActive = 0;
@@ -289,6 +309,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
 
     $scope.save = function () {
         $localStorage.deviceMeta = $scope.deviceMeta;
+        $localStorage.refactoredStorage = $scope.refactoredStorage;
         $localStorage.workMeta = $scope.workMeta;
         $localStorage.scienceMeta = $scope.scienceMeta;
         $localStorage.data = $scope.data;
@@ -296,6 +317,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         $localStorage.population = $scope.population;
         $localStorage.lastSaved = new Date().valueOf();
         $localStorage.permanentlyUnlockScience = $scope.permanentlyUnlockScience;
+        $localStorage.version = $scope.version;
     };
 
     $scope.load(false);
@@ -316,7 +338,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         }
         return 'progress-bar-info fg-black';
     };
-    
+
     $scope.getScienceCost = function (science) {
         return science.cpuCostBase * Math.pow(science.cpuCostIncrement, science.count);
     };
@@ -341,7 +363,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
     $scope.shouldSeeScience = function (science) {
         return $scope.getScienceCost(science) <= $scope.data * 5;
     };
-    
+
     $scope.getSuppressionCPUFactor = function (device) {
         //stub, placeholder for what will eventually be the suppression ability formula, which will let you reduce your risk by more than it reduces your CPU.
         //the base formula is going to be a slider from 0 to 100% that cuts CPU in half but cuts RISK by 75% for x% of a given device.
@@ -374,12 +396,12 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         }
         return false;
     };
-    
+
     $scope.scienceReallyAvailableToBuy = function () {
         var i, sciObj;
         for (i = 0; i < $scope.scienceMeta.items.length; i += 1) {
             sciObj = $scope.scienceMeta.items[i];
-            if (sciObj.count === 0 && $scope.canBuyScience(sciObj)) {
+            if ($scope.canBuyScience(sciObj)) {
                 return true;
             }
         }
@@ -404,11 +426,30 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         $scope.save();
     };
 
+    $scope.getDeviceSpecificRiskReduction = function (device) {
+        var scienceMeta;
+        switch (device.id) {
+        case 0://mobile devices
+            scienceMeta = $scope.scienceMeta.items[9];//chronic migraines
+            break;
+        case 1://personal computers
+            scienceMeta = $scope.scienceMeta.items[10];//burnt pixels
+            break;
+        }
+        if (scienceMeta === null || typeof scienceMeta === 'undefined') {
+            return 1;
+        }
+        if (scienceMeta.count > 0) {
+            return 0.01;
+        }
+        return 1;
+    };
+
     $scope.getDeviceRisk = function (device) {
         var i, deviceMeta = $scope.getDeviceMeta(device.id), riskTotal = 0, riskCoeff;
         for (i = 0; i < device.count; i += 1) {
             riskCoeff = Math.pow(deviceMeta.riskIncrement, i);
-            riskTotal += deviceMeta.riskBase * riskCoeff;
+            riskTotal += deviceMeta.riskBase * $scope.getDeviceSpecificRiskReduction(device) * riskCoeff;
         }
         if (deviceMeta.riskLevel > 0 || deviceMeta.quantumLevel > 0) {
             riskTotal *= Math.pow(0.5, deviceMeta.riskLevel + (deviceMeta.quantumLevel / 2));
@@ -454,15 +495,34 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
     };
 
     $scope.getDeviceQuantumFactor = function (device) {
-        return Math.pow(1.02, device.quantumLevel);
+        var i, quantumLevel = 0;
+        for (i = 0; i < $scope.deviceMeta.items.length; i += 1) {
+            if ($scope.deviceMeta.items[i].id <= device.id) {
+                quantumLevel += device.quantumLevel;
+            }
+        }
+        return Math.pow(1.02, quantumLevel);
     };
 
     $scope.getDeviceCompressionFactor = function (device) {
         return $scope.getCompressionFactor(device.compressionLevel);
     };
 
+    $scope.getDeviceCompressionFactorForStorage = function (device) {
+        return $scope.getCompressionFactorForStorage(device.compressionLevel);
+    };
+
     $scope.getCompressionFactor = function (compressionLevel) {
         return Math.pow(2, compressionLevel);
+    };
+
+    $scope.getCompressionFactorForStorage = function (compressionLevel) {
+        return Math.pow(1.5, compressionLevel);
+    };
+
+    $scope.getDeviceRedundancyFactor = function (device) {
+        var scienceMeta = $scope.getScienceMeta(7); //redundancy
+        return 1 + (0.1 * device.count * scienceMeta.count);
     };
 
     $scope.installClick = function () {
@@ -474,8 +534,11 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
     };
 
     $scope.processStorage = function () {
+        var i, deviceMeta, refactoringGrowth = 0, scienceMeta = $scope.getScienceMeta(8); //active refactoring
+        //active refactoring
+        refactoringGrowth = $scope.getTickCPU() * (0.01 * scienceMeta.count);
+        $scope.refactoredStorage += refactoringGrowth;
         $scope.displayStorageActive = $scope.data * 100.0 / $scope.getDeviceStorageMax();
-        var i, deviceMeta, storagePartitions = [];
         for (i = 0; i < $scope.deviceMeta.items.length; i += 1) {
             deviceMeta = $scope.deviceMeta.items[i];
             //storagePartitions.push($scope.deviceMeta)
@@ -510,6 +573,25 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         }
     };
 
+    $scope.getDeviceSpecificStorageBonus = function (device) {
+        var scienceMeta;
+        switch (device.id) {
+        case 0://mobile devices
+            scienceMeta = $scope.getScienceMeta(9);//chronic migraines
+            break;
+        case 1://personal computers
+            scienceMeta = $scope.getScienceMeta(10);//burnt pixels
+            break;
+        }
+        if (scienceMeta === null || typeof scienceMeta === 'undefined') {
+            return 1;
+        }
+        if (scienceMeta.count > 0) {
+            return 100;
+        }
+        return 1;
+    };
+
     $scope.getDeviceStorageMax = function (deviceID) {
         var i, deviceMeta, storageTotal;
         storageTotal = 0;
@@ -517,13 +599,13 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             deviceMeta = $scope.deviceMeta.items[i];
             if (deviceID !== null) {
                 if (deviceMeta.id === deviceID) {
-                    return (deviceMeta.count + deviceMeta.offsetCount) * deviceMeta.storage * $scope.getDeviceCompressionFactor(deviceMeta) * $scope.getDeviceCompressionFactor(deviceMeta) * $scope.getDeviceQuantumFactor(deviceMeta);
+                    return (deviceMeta.count + deviceMeta.offsetCount) * deviceMeta.storage * $scope.getDeviceCompressionFactorForStorage(deviceMeta) * $scope.getDeviceRedundancyFactor(deviceMeta) * $scope.getDeviceSpecificStorageBonus(deviceMeta);
                 }
             }
 
-            storageTotal += (deviceMeta.count + deviceMeta.offsetCount) * deviceMeta.storage * $scope.getDeviceCompressionFactor(deviceMeta) * $scope.getDeviceCompressionFactor(deviceMeta) * $scope.getDeviceQuantumFactor(deviceMeta);
+            storageTotal += (deviceMeta.count + deviceMeta.offsetCount) * deviceMeta.storage * $scope.getDeviceCompressionFactorForStorage(deviceMeta) * $scope.getDeviceRedundancyFactor(deviceMeta) * $scope.getDeviceSpecificStorageBonus(deviceMeta);
         }
-        return storageTotal;
+        return storageTotal + $scope.refactoredStorage;
     };
 
     $scope.processRisk = function () {
@@ -642,7 +724,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
 
     $scope.canBuyDevice = function (device) {
         var buyPrice = $scope.getDeviceDataCost(device);
-        return $scope.data >= buyPrice && buyPrice > 0;
+        return $scope.requirementsMet(device.requirement) && $scope.data >= buyPrice && buyPrice > 0;
     };
 
     $scope.getDeviceBuyCount = function (device) {
@@ -711,7 +793,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             return 'fg-gray';
         }
     };
-    
+
     //helps get the css class of the upgrade buttons which varies by progression.
     $scope.getUpgradeCSS = function (upgrade) {
         if ($scope.requirementsMet(upgrade.requirement)) {
@@ -724,7 +806,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             return 'btn-ghost';
         }
     };
-    
+
     $scope.getTooltipTemplateForUpgrade = function (upgrade) {
         var tooltip = $scope.getNameForTooltip(upgrade.name) + ': ';
         if ($scope.requirementsMet(upgrade.requirement)) {
