@@ -36,7 +36,7 @@
                     <div ng-click="canBuyUpgrade(upgrade) && buyUpgrade(upgrade)" ng-class="getUpgradeCSS(upgrade)" class="noselect">
                         <i class="btn-upgrade-image" ng-class="upgrade.icon + ' ' + getCanBuyColor('upgrade', upgrade)" ng-bind="upgrade.iconFontID"></i>
                         <span class="btn-upgrade-count noselect" ng-show="requirementsMet(upgrade.requirement)">
-                            {{ getUpgradeLevel(upgrade)  }}
+                            {{ upgrade.count  }}
                         </span>
                     </div>
                 </div>
@@ -52,9 +52,6 @@
                 <span class="fg-white">({{ display(getDeviceStorageMax(device.id) * 100 / getDeviceStorageMax(), true) }}%)</span>
                 <br>
                 <span class="fg-red">Risk of Loss:</span> 1 : {{ display(getDeviceRiskForDisplay(device), true) }}
-            </div>
-            <div class="device-card-text-right">
-                <span class="fg-gold">{{ getDeviceNetworkFactor(device) &lt; 1 ? 'Loss' : 'Gain' }}</span>:<br>{{ display(getDeviceNetworkFactor(device) * 100 - 100, true) }}%
             </div>
         </div>
     </div>
