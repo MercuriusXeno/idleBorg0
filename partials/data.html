@@ -12,20 +12,23 @@
 </div>
 <br>
 <div class="card-container no-padding" ng-show="hasDevice()">
-    <div class="round-borders-inset no-padding btn-device-card-wrapper" ng-show="device.count > 0 || device.unlocked" ng-repeat="device in deviceMeta.items">
+    <div class="round-borders-inset no-padding btn-device-card-wrapper" ng-show="shouldShowDevice(device)" ng-repeat="device in deviceMeta.items">
         <div class="btn-device-wrapper">
-            <a ng-click="buyDevice(device)" ng-class="(!canBuyDevice(device) ? 'btn-disabled' : 'btn-enabled')"
+            <a ng-click="buyDevice(device)" ng-class="(!canBuyDevice(device) || device.hacking > 0 ? 'btn-disabled' : 'btn-enabled')"
                class="btn round-borders-left"
                tooltips tooltip-speed="fast" tooltip-side="bottom"
-               tooltip-template="{{ getNameForTooltip(device.name) }}: {{ getDeviceMeta(device.id).description }} ">
+               tooltip-template="{{ getNameForTooltip(device.name) }}: {{ device.description }} ">
                 <i class="btn-device" ng-class="device.icon + ' ' + getCanBuyColor('device', device)"
                    ng-bind="device.iconFontID" ng-disabled="data < getDeviceBuyPrice(device)">
                 </i>
                 <span class="btn-device-count">
                     {{ device.count }}
                 </span>
+                <span class="btn-device-hacking" ng-show="device.hacking > 0">
+                    HACKING
+                </span>
                 <span class="btn-device-buy">
-                    +{{ getDeviceBuyCount(device) }}
+                    +{{ device.hacking > 0 ? device.hacking : getDeviceBuyCount(device) }}
                 </span>
             </a>
         </div>
@@ -45,11 +48,11 @@
                 <span ng-show="getDeviceDataCost(device) > 0"><span class="fg-gold">Cost</span>: {{ display(getDeviceDataCost(device))}}B</span>
                 <span ng-show="getDeviceDataCost(device) == 0"><span class="fg-gold">Cost</span>: {{ display(getDeviceDataCost(device, 1))}}B</span>
                 <br>
-                <span class="fg-cyan">{{ display(getCPUGenerated(device.id) * getTicksPerSecond()) }}B/sec</span>
-                <span class="fg-white">({{ display(getCPUGenerated(device.id) * 100 / getTickCPU(), true) }}%)</span>
+                <span class="fg-cyan">{{ display(getDataGeneratedPerTick(device) * getTicksPerSecond()) }}B/sec</span>
+                <span class="fg-white">({{ display(getDataGeneratedPerTick(device) * 100 / getTickCPU(), true) }}%)</span>
                 <br>
-                <span class="fg-gray">Holds</span> {{ display(getDeviceStorageMax(device.id)) }}B
-                <span class="fg-white">({{ display(getDeviceStorageMax(device.id) * 100 / getDeviceStorageMax(), true) }}%)</span>
+                <span class="fg-gray">Holds</span> {{ display(getDeviceStorageMax(device)) }}B
+                <span class="fg-white">({{ display(getDeviceStorageMax(device) * 100 / getDeviceStorageMax(), true) }}%)</span>
                 <br>
                 <span class="fg-red">Risk of Loss:</span> 1 : {{ display(getDeviceRiskForDisplay(device), true) }}
             </div>

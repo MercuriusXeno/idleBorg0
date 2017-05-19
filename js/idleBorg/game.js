@@ -1,6 +1,7 @@
 //Controller file
 /*global angular, console*/
 /*jslint white: true */ //shhh jslint, let me space things how I want to. I prefix with commas because it clarifies a list continuation, separation of elements, etc.
+/*jslint vars: true */ //shh jslint, I refuse to put my variables at the top of a function. Iterators of a for loop should be declared in the for loop. This is just stupid.
 angular.module('gameApp').controller('GameController', ['$scope', '$location', '$interval', '$route', '$localStorage', '$window', '$http', '$sessionStorage', function ($scope, $location, $interval, $route, $localStorage, $window, $http, $sessionStorage) {
     'use strict';
 
@@ -40,7 +41,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'material-icons' //font family name
             , 'call_merge' //font family icon
             , 125 * device.dataCostBase //base cost of device upgrade is predicated on the base cost of the device it is derived from, at the time of writing.
-            , 10 //coefficient of the cost, multiplied for each level.
+            , 2.4 //coefficient of the cost, multiplied for each level.
             , compressionReq.items //requirement template of the item
         );
 
@@ -57,7 +58,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'material-icons' //font family name
             , 'call_split' //font family icon
             , 2500 * device.dataCostBase //cost base
-            , 8 //cost coefficient
+            , 4 //cost coefficient
             , networkReq.items //requirement template
         );
 
@@ -72,7 +73,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'material-icons' //font family name
             , 'shuffle' //font family icon
             , 50e3 * device.dataCostBase //cost base
-            , 6 //cost coefficient
+            , 5.6 //cost coefficient
             , obfuscateReq.items
         );
 
@@ -87,7 +88,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'material-icons' //font family name
             , 'timeline' //font family icon
             , 100e4 * device.dataCostBase
-            , 4 //cost coefficient
+            , 7.2 //cost coefficient
             , quantumReq.items //requirement template
         );
 
@@ -95,26 +96,15 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         device.upgradeList = newUpgrades.items;
     };
 
-    //gets the science item template for a specific science upgrade by its numerical ID
-    $scope.getScienceMeta = function (scienceID) {
-        var i;
-        for (i = 0; i < $scope.scienceMeta.items.length; i += 1) {
-            if ($scope.scienceMeta.items[i].id === scienceID) {
-                return $scope.scienceMeta.items[i];
-            }
-        }
-        return null;
-    };
-
     //base ms between ticks, reduced by time dilation in a linear fashion, but it's with a formula.
     $scope.msBetweenTicks = 1000;
 
     //returns the tick interval based on the science upgrade "Time Dilation" which increases your TPS by 1 per level. Science Meta 4 is time dilation.
-    $scope.getTickInterval = function () { return $scope.msBetweenTicks / (1 + $scope.getScienceMeta(4).count); };
+    $scope.getTickInterval = function () { return $scope.msBetweenTicks / (1 + $scope.scienceMeta.items[4].count); };
 
     $scope.getTicksPerSecond = function () {
         //stub, placeholder value right now is gonna default to 5 (200ms interval) until I can do shmancy shit with upgrades or whatever
-        return 1 + $scope.getScienceMeta(4).count;
+        return 1 + $scope.scienceMeta.items[4].count;
     };
 
     //resets the interval the game needs to actually run. Needed when it starts or changes. Cancels existing interval (if any) as well.
@@ -144,9 +134,13 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
 
         // CREATE SCIENCE TEMPLATE FOR THE GAME //
 
+        var requirementTemplate = {}; //the requirement template to store each science requirement. When used, it must be reset so that it doesn't carry to the next object. Passing {} is ok
+        requirementTemplate.items = [];
+        requirementTemplate.inject = function (id, type, ref, value) { requirementTemplate.items.push({id: id, type: type, ref: ref, value: value}); };
+
         $scope.scienceMeta = {};
         $scope.scienceMeta.items = [];
-        $scope.scienceMeta.inject = function (id, name, desc, icon, iconFontID, dataCost, dataCostIncrement, max) {
+        $scope.scienceMeta.inject = function (id, name, desc, icon, iconFontID, dataCost, dataCostIncrement, max, requirementItems) {
             $scope.scienceMeta.items.push({
                 id: id //numerical science index, which is usually what is used to access them
                 , name: name //friendly name of the science item
@@ -157,6 +151,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
                 , dataCostIncrement: dataCostIncrement //this is how much the cost increases each level, if applicable
                 , max: max //the maximum number of science upgrades you can get for this item
                 , count: 0 //this is how many levels of this research the player has acquired
+                , requirement: requirementItems //these are the requirement items for this object.
             });
         };
 
@@ -171,6 +166,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 5e3 //cost
             , 1 //cost multiplier
             , 1 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -182,6 +178,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 10e5 //cost
             , 1 //cost multiplier
             , 1 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -193,6 +190,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 20e7 //cost
             , 1 //cost multiplier
             , 1 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -204,6 +202,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 40e9 //cost
             , 1 //cost multiplier
             , 1 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -215,6 +214,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 1e4 //cost
             , 3000 //cost multiplier
             , 5 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -226,6 +226,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 7.2e8 //cost
             , 1 //cost multiplier
             , 1 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -237,6 +238,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 120e6 //cost
             , 200000 //cost multiplier
             , 5 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -245,9 +247,10 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'Each device tier storage is increased by 1% for each device, per level. Additive.' //description
             , 'material-icons' //icon font family
             , 'cloud_queue' //icon font ID
-            , 700e4 //cost
+            , 750e4 //cost
             , 80 //cost multiplier
             , 5 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -259,6 +262,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 800e4 //cost
             , 80 //cost multiplier
             , 5 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -267,9 +271,10 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'Your cellular devices deter users. Risk / 10.' //description
             , 'material-icons' //icon font family
             , 'sentiment_very_dissatisfied' //icon font ID
-            , 80e4 //cost
+            , 80e6 //cost
             , 200 //cost multiplier
             , 5 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -278,9 +283,10 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'Your PCs deter users. Risk / 10.' //description
             , 'material-icons' //icon font family
             , 'remove_from_queue' //icon font ID
-            , 80e5 //cost
+            , 80e7 //cost
             , 200 //cost multiplier
             , 5 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -292,6 +298,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 320e5 //cost
             , 120 //cost multiplier
             , 5 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -300,9 +307,10 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'Your workstations deter users. Risk / 10.' //description
             , 'material-icons' //icon font family
             , 'signal_wifi_off' //icon font ID
-            , 80e6 //cost
+            , 80e8 //cost
             , 200 //cost multiplier
             , 5 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -311,9 +319,10 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'Your databases deter users. Risk / 10.' //description
             , 'material-icons' //icon font family
             , 'input' //icon font ID
-            , 80e7 //cost
+            , 80e9 //cost
             , 200 //cost multiplier
             , 5 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -322,9 +331,10 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'Your academic servers deter users.  Risk / 10.' //description
             , 'material-icons' //icon font family
             , 'delete' //icon font ID
-            , 80e8 //cost
+            , 80e10 //cost
             , 200 //cost multiplier
             , 5 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -333,9 +343,10 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'Your government servers deter users. Risk / 10.' //description
             , 'material-icons' //icon font family
             , 'record_voice_over' //icon font ID
-            , 80e9 //cost
+            , 80e11 //cost
             , 200 //cost multiplier
             , 5 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -344,9 +355,10 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'Your nanocomputers deter users. Risk / 10.' //description
             , 'material-icons' //icon font family
             , 'visibility_off' //icon font ID
-            , 80e10 //cost
+            , 80e12 //cost
             , 200 //cost multiplier
             , 5 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -355,9 +367,10 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'Your quantum computers deter users. Risk / 10.' //description
             , 'material-icons' //icon font family
             , 'help_outline' //icon font ID
-            , 80e11 //cost
+            , 80e13 //cost
             , 200 //cost multiplier
             , 5 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -366,9 +379,10 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'Your ether networks deter users. Risk / 10.' //description
             , 'material-icons' //icon font family
             , 'bubble_chart' //icon font ID
-            , 80e12 //cost
+            , 80e14 //cost
             , 200 //cost multiplier
             , 5 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -380,6 +394,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 320e7 //cost
             , 1 //cost multiplier
             , 1 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -391,6 +406,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 800e8 //cost
             , 80 //cost multiplier
             , 5 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -402,6 +418,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 320e7 //cost
             , 80 //cost multiplier
             , 5 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -413,6 +430,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 70e6 //cost
             , 80 //cost multiplier
             , 10 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -424,6 +442,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 70e8 //cost
             , 80 //cost multiplier
             , 5 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -435,6 +454,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 70e7 //cost
             , 80 //cost multiplier
             , 10 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -446,6 +466,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 70e9 //cost
             , 80 //cost multiplier
             , 5 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -457,6 +478,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 70e8 //cost
             , 80 //cost multiplier
             , 10 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -468,6 +490,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 70e10 //cost
             , 80 //cost multiplier
             , 5 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -479,6 +502,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 70e7 //cost
             , 90 //cost multiplier
             , 5 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -490,6 +514,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 50e5 //cost
             , 1 //cost multiplier
             , 1 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -501,6 +526,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 30e7 //cost
             , 1 //cost multiplier
             , 1 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -512,6 +538,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 50e8 //cost
             , 1 //cost multiplier
             , 1 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -523,6 +550,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 60e7 //cost
             , 1 //cost multiplier
             , 1 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -534,6 +562,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 50e9 //cost
             , 200 //cost multiplier
             , 5 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -545,6 +574,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 20e8 //cost
             , 100 //cost multiplier
             , 5 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -556,6 +586,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 20e6 //cost
             , 1 //cost multiplier
             , 1 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -567,6 +598,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 20e7 //cost
             , 1 //cost multiplier
             , 1 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -578,6 +610,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 20e8 //cost
             , 1 //cost multiplier
             , 1 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -589,6 +622,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 20e9 //cost
             , 1 //cost multiplier
             , 1 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -600,6 +634,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 20e10 //cost
             , 1 //cost multiplier
             , 1 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -611,6 +646,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 20e11 //cost
             , 1 //cost multiplier
             , 1 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -622,6 +658,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 20e12 //cost
             , 1 //cost multiplier
             , 1 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -633,6 +670,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 20e13 //cost
             , 1 //cost multiplier
             , 1 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
@@ -644,17 +682,19 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 20e14 //cost
             , 1 //cost multiplier
             , 1 //max
+            , {} //requirements
         );
 
         $scope.scienceMeta.inject(
             44 //id
-            , 'Autonomous Passive Aggression' //name
+            , 'Passive Aggression' //name
             , 'Reduce the penalty of passive hacking by 10% per level.' //description
             , 'material-icons' //icon font family
             , 'filter_list' //icon font ID
             , 20e11 //cost
             , 20 //cost multiplier
             , 1 //max
+            , {} //requirements
         );
 
         // CREATE DEVICE TEMPLATE FOR THE GAME //
@@ -663,14 +703,6 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
 
         //creates the items array in the device meta.
         $scope.deviceMeta.items = [];
-
-        //declares a method for getting device template info by the id of the device.
-        $scope.getDeviceMeta = function (deviceID) {
-            var deviceIndex;
-            for (deviceIndex = 0; deviceIndex < $scope.deviceMeta.items.length; deviceIndex += 1) {
-                if ($scope.deviceMeta.items[deviceIndex].id === deviceID) { return $scope.deviceMeta.items[deviceIndex]; }
-            }
-        };
 
         //declares a push method for the device meta. As above with upgrades/requirements, this probably wasn't necessary, but it works.
         $scope.deviceMeta.inject = function (id, name, description, icon, iconFontID, cpuBase, storage, dataCostIncrement, riskIncrement, dataCostBase, requirement, upgradeList) {
@@ -688,11 +720,11 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
                 , requirement: requirement //the requirement for this device. some devices don't have requirements.
                 , upgradeList: upgradeList //the template of upgrades belonging to this device. each one has a set and they're mostly the same.
                 , unlocked: false //tells the browser to hide the item and prevents you from buying it.
-                , hacking: false //tells the browser to disable the button when true. you can only hack a single device per tick.
+                , hacking: 0 //tells the browser to disable the button when true. you can only hack a single device per tick.
                 , count: 0 //how many of a device you have hacked. This determines cost and other things.
                 , offsetCount: 0 //this is a count you get without factoring into costs, among other things.
             });
-            $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(id));
+            $scope.generateUpgradeTemplateForDevice($scope.deviceMeta.items[id]);
         };
 
         //devices, how much they cost, descriptions, template stuff.
@@ -707,10 +739,10 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'material-icons' //font family
             , 'smartphone' //font icon if applicable
             , 1 //data per tick
-            , 5 //storage
+            , 50 //storage
             , 1.075 //data cost increment
             , 1.09 //risk increment
-            , 4 //data cost base
+            , 40 //data cost base
         );
 
         $scope.deviceMeta.inject(
@@ -720,10 +752,10 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'material-icons' //font family
             , 'laptop' //font icon if applicable
             , 8 //data per tick
-            , 80 //storage
+            , 800 //storage
             , 1.07 //data cost increment
             , 1.0875 //risk increment
-            , 40 //data cost base
+            , 400 //data cost base
         );
 
         $scope.deviceMeta.inject(
@@ -733,10 +765,10 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'fa fa-server' //font family
             , '' //font icon if applicable
             , 64 //data per tick
-            , 960 //storage
+            , 9600 //storage
             , 1.065 //data cost increment
             , 1.085 //risk increment
-            , 400 //data cost base
+            , 4000 //data cost base
         );
 
         $scope.deviceMeta.inject(
@@ -746,10 +778,10 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'fa fa-database' //font family
             , '' //font icon if applicable
             , 512 //data per tick
-            , 10240 //storage
+            , 102400 //storage
             , 1.06 //data cost increment
             , 1.0825 //risk increment
-            , 4e3 //data cost base
+            , 4e4 //data cost base
         );
 
         $scope.deviceMeta.inject(
@@ -759,10 +791,10 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'fa fa-university' //font family
             , '' //font icon if applicable
             , 4096 //data per tick
-            , 102400 //storage
+            , 1024000 //storage
             , 1.055 //data cost increment
             , 1.08 //risk increment
-            , 4e4 //data cost base
+            , 4e5 //data cost base
         );
 
         $scope.deviceMeta.inject(
@@ -772,10 +804,10 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'fa fa-gavel' //font family
             , '' //font icon if applicable
             , 32768 //data per tick
-            , 983040 //storage
+            , 9830400 //storage
             , 1.05 //data cost increment
             , 1.0775 //risk increment
-            , 4e5 //data cost base
+            , 4e6 //data cost base
         );
 
         $scope.deviceMeta.inject(
@@ -785,10 +817,10 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'fa fa-microchip' //font family
             , '' //font icon if applicable
             , 262144 //data per tick
-            , 9175040 //storage
+            , 91750400 //storage
             , 1.1 //data cost increment
             , 1.045 //risk increment
-            , 4e6 //data cost base
+            , 4e7 //data cost base
         );
 
         $scope.deviceMeta.inject(
@@ -798,23 +830,23 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'fa fa-ravelry' //font family
             , '' //font icon if applicable
             , 2097152 //data per tick
-            , 83886080 //storage
+            , 838860800 //storage
             , 1.04 //data cost increment
             , 1.0725 //risk increment
-            , 4e7 //data cost base
+            , 4e8 //data cost base
         );
 
         $scope.deviceMeta.inject(
             8 //id
             , 'Ether Network' //name
-            , 'An alien device network which generates vast computing power but cannot store data. Highly improbable.' //description
+            , 'An alien device network which generates vast computing power. Highly improbable.' //description
             , 'fa fa-eercast' //font family
             , '' //font icon if applicable
             , 16777216 //data per tick
-            , 754974720 //storage
+            , 7549747200 //storage
             , 1.035 //data cost increment
             , 1.07 //risk increment
-            , 4e8 //data cost base
+            , 4e9 //data cost base
         );
 
         //lazy versioning. I tried to write a comprehensive subroutine for updating saves, but it backfired and was bad.
@@ -841,7 +873,6 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             $scope.refactoredStorage = 0;
         }
         $scope.resetGameInterval();
-        $scope.displayStorageActive = 0;
         //here's the very last minute, where we check to see if our timestamps don't line up.
         now = new Date().valueOf();
 
@@ -869,8 +900,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
     $scope.load(false);
 
     $scope.hasDevice = function () {
-        var i;
-        for (i = 0; i < $scope.deviceMeta.items.length; i += 1) {
+        for (var i = 0; i < $scope.deviceMeta.items.length; i += 1) {
             if ($scope.deviceMeta.items[i].count > 0) {
                 return true;
             }
@@ -916,9 +946,8 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
 
     $scope.setTab = function (tabName) { $scope.selectedTab = tabName; };
 
-    $scope.hackDevice = function (deviceID, count) {
-        var deviceMeta = $scope.getDeviceMeta(deviceID);
-        deviceMeta.count += count;
+    $scope.hackDevice = function (device, count) {
+        device.hacking = count;
         $scope.save();
     };
 
@@ -926,9 +955,8 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         if ($scope.permanentlyUnlockScience) {
             return true;
         }
-        var i, sciObj;
-        for (i = 0; i < $scope.scienceMeta.items.length; i += 1) {
-            sciObj = $scope.scienceMeta.items[i];
+        for (var i = 0; i < $scope.scienceMeta.items.length; i += 1) {
+            var sciObj = $scope.scienceMeta.items[i];
             if (sciObj.count > 0 || $scope.shouldSeeScience(sciObj)) {
                 $scope.permanentlyUnlockScience = true;
                 return true;
@@ -937,10 +965,9 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         return false;
     };
 
-    $scope.scienceReallyAvailableToBuy = function () {
-        var i, sciObj;
-        for (i = 0; i < $scope.scienceMeta.items.length; i += 1) {
-            sciObj = $scope.scienceMeta.items[i];
+    $scope.shouldHighlightScienceTab = function () {
+        for (var i = 0; i < $scope.scienceMeta.items.length; i += 1) {
+            var sciObj = $scope.scienceMeta.items[i];
             if ($scope.canBuyScience(sciObj)) {
                 return true;
             }
@@ -948,39 +975,24 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         return false;
     };
 
-    $scope.hasScience = function (science) {
-        return science.count > 0;
-    };
-
-    $scope.isScienceMaxed = function (science) {
-        return science.count === science.max;
-    };
-
     $scope.workAvailable = function () {
         return false;//stub
     };
 
     $scope.removeDevice = function (deviceID) {
-        var deviceMeta = $scope.getDeviceMeta(deviceID);
-        deviceMeta.count -= 1;
+        $scope.deviceMeta.items[deviceID].count -= 1;
         $scope.save();
     };
 
-    $scope.getDeviceSpecificRiskReduction = function (device) {
-        var scienceMeta;
+    $scope.getScienceBasedRiskReduction = function (device) {
+        var multiplier;
         switch (device.id) {
         case 0://mobile devices
-            scienceMeta = $scope.scienceMeta.items[9];//chronic migraines
+            multiplier *= Math.pow(0.1, $scope.scienceMeta.items[9].count); //chronic migraines
             break;
         case 1://personal computers
-            scienceMeta = $scope.scienceMeta.items[10];//burnt pixels
+            multiplier *= Math.pow(0.1, $scope.scienceMeta.items[10].count);//burnt pixels
             break;
-        }
-        if (scienceMeta === null || typeof scienceMeta === 'undefined') {
-            return 1;
-        }
-        if (scienceMeta.count > 0) {
-            return 0.01;
         }
         return 1;
     };
@@ -988,21 +1000,23 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
     $scope.getQuantumTotalLevelForDevice = function (device) {
         var index = device.id, i, deviceMeta, quantumLevel = 0;
         for (i = 8; i > index; i -= 1) {
-            deviceMeta = $scope.getDeviceMeta(i);
+            deviceMeta = $scope.deviceMeta.items[i];
             quantumLevel += device.upgradeList[3].count; //3 is quantum
         }
         return quantumLevel;
     };
 
     $scope.getDeviceRisk = function (device) {
-        var i, riskTotal = 0, riskCoeff;
-        for (i = 0; i < device.count; i += 1) {
-            riskCoeff = Math.pow(device.riskIncrement, i);
-            riskTotal += $scope.getDeviceSpecificRiskReduction(device) * riskCoeff;
+        var riskTotal = 0;
+        for (var i = 0; i < device.count; i += 1) {
+            var riskCoeff = Math.pow(device.riskIncrement, i);
+            riskTotal += $scope.getScienceBasedRiskReduction(device) * riskCoeff;
         }
+        //encryption per device
         if (device.upgradeList[2].count > 0) {
             riskTotal *= Math.pow(0.5, device.upgradeList[2].count);
         }
+        //quantum bonus per device
         if ($scope.getQuantumTotalLevelForDevice(device) > 0) {
             riskTotal *= Math.pow(0.9, $scope.getQuantumTotalLevelForDevice(device));
         }
@@ -1021,11 +1035,10 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         return riskAgainst;
     };
 
-    $scope.getCPUGenerated = function (deviceID) {
-        var deviceMeta, device;
-        deviceMeta = $scope.getDeviceMeta(deviceID);
-        device = $scope.getDeviceMeta(deviceID);
-        return ((device.count + device.offsetCount) * deviceMeta.cpuBase) * $scope.getDeviceCPUFactor(device);
+    $scope.getDataGeneratedPerTick = function (device) {
+        var multiplier;
+        multiplier = Math.pow(2, Math.floor((device.count + device.offsetCount) / 25))
+        return multiplier * ((device.count + device.offsetCount) * device.cpuBase) * $scope.getDeviceCPUFactor(device);
     };
 
     $scope.getDeviceCPUFactor = function (device) {
@@ -1033,7 +1046,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
     };
 
     $scope.getDeviceClusteringFactor = function (device) {
-        var scienceMeta = $scope.getScienceMeta(6);//clustering, if you have it, it's a permanent bonus to all devices.
+        var scienceMeta = $scope.scienceMeta.items[6];//clustering, if you have it, it's a permanent bonus to all devices.
         return Math.pow(1 + (.005 * scienceMeta.count), device.count);
     };
 
@@ -1054,7 +1067,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
     };
 
     $scope.getDeviceRedundancyFactor = function (device) {
-        var scienceMeta = $scope.getScienceMeta(7); //redundancy
+        var scienceMeta = $scope.scienceMeta.items[7]; //redundancy
         return 1 + (0.1 * device.count * scienceMeta.count);
     };
 
@@ -1063,57 +1076,47 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         if ($scope.population <= 0) {
             $scope.population = 1;
         }
-        $scope.hackDevice(0, 1);
+        $scope.hackDevice($scope.deviceMeta.items[0], 1); //hack 1 cell phone
     };
 
     $scope.processStorage = function () {
-        var i, deviceMeta, refactoringGrowth = 0, scienceMeta = $scope.getScienceMeta(8); //active refactoring
-        //active refactoring
-        refactoringGrowth = $scope.getTickCPU() * (0.01 * scienceMeta.count);
+        var refactoringGrowth = 0
+            , activeRefactoring = $scope.scienceMeta.items[8]//active refactoring
+            , passiveCompression = $scope.scienceMeta.items[11]; //passive compression
+        if ($scope.data === $scope.getDeviceStorageMax()) {
+            refactoringGrowth += $scope.getTickCPU() * 0.002 * passiveCompression.count
+        } else {
+            refactoringGrowth = $scope.getTickCPU() * 0.01 * activeRefactoring.count;
+        }
         $scope.refactoredStorage += refactoringGrowth;
-        $scope.displayStorageActive = $scope.data * 100.0 / $scope.getDeviceStorageMax();
-        for (i = 0; i < $scope.deviceMeta.items.length; i += 1) {
-            deviceMeta = $scope.deviceMeta.items[i];
-            //storagePartitions.push($scope.deviceMeta)
+    };
+
+    $scope.processHacks = function () {
+        for (var i = 0; i < $scope.deviceMeta.items.length; i += 1) {
+            var device = $scope.deviceMeta.items[i];
+            if (device.hacking > 0) {
+                device.count += 1;
+                device.hacking -= 1;
+            }
         }
     };
 
     $scope.gameTick = function () {
+        $scope.processHacks();
         $scope.processStorage();
         $scope.processRisk();
         //here's where magic happens, such as data being incremented.
         $scope.data = Math.min($scope.getDeviceStorageMax(), $scope.data + $scope.getTickCPU());
-        $scope.processUnlocks();
-    };
-
-    $scope.processUnlocks = function () {
-        var i, deviceMeta, scienceMeta;
-        for (i = 0; i < $scope.deviceMeta.items.length; i += 1) {
-            deviceMeta = $scope.deviceMeta.items[i];
-            if (!deviceMeta.unlocked) {
-                if (deviceMeta.dataCostBase <= $scope.data * 5) {
-                    deviceMeta.unlocked = true;
-                }
-            }
-        }
-        for (i = 0; i < $scope.scienceMeta.items.length; i += 1) {
-            scienceMeta = $scope.scienceMeta.items[i];
-            if (!scienceMeta.unlocked) {
-                if (scienceMeta.dataCostBase <= $scope.data * 5) {
-                    scienceMeta.unlocked = true;
-                }
-            }
-        }
     };
 
     $scope.getDeviceSpecificStorageBonus = function (device) {
         var scienceMeta;
         switch (device.id) {
         case 0://mobile devices
-            scienceMeta = $scope.getScienceMeta(9);//chronic migraines
+            scienceMeta = $scope.scienceMeta.items[9];//chronic migraines
             break;
         case 1://personal computers
-            scienceMeta = $scope.getScienceMeta(10);//burnt pixels
+            scienceMeta = $scope.scienceMeta.items[10];//burnt pixels
             break;
         }
         if (scienceMeta === null || typeof scienceMeta === 'undefined') {
@@ -1125,18 +1128,16 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         return 1;
     };
 
-    $scope.getDeviceStorageMax = function (deviceID) {
-        var i, deviceMeta, storageTotal;
-        storageTotal = 0;
-        for (i = 0; i < $scope.deviceMeta.items.length; i += 1) {
-            deviceMeta = $scope.deviceMeta.items[i];
-            if (deviceID !== null) {
-                if (deviceMeta.id === deviceID) {
-                    return (deviceMeta.count + deviceMeta.offsetCount) * deviceMeta.storage * $scope.getDeviceCompressionFactorForStorage(deviceMeta) * $scope.getDeviceRedundancyFactor(deviceMeta) * $scope.getDeviceSpecificStorageBonus(deviceMeta);
-                }
+    $scope.getDeviceStorageMax = function (device) {
+        if (typeof device === 'undefined' || device === null) {
+            var i, deviceMeta, storageTotal;
+            storageTotal = 0;
+            for (i = 0; i < $scope.deviceMeta.items.length; i += 1) {
+                deviceMeta = $scope.deviceMeta.items[i];
+                storageTotal += (deviceMeta.count + deviceMeta.offsetCount) * deviceMeta.storage * $scope.getDeviceCompressionFactorForStorage(deviceMeta) * $scope.getDeviceRedundancyFactor(deviceMeta) * $scope.getDeviceSpecificStorageBonus(deviceMeta);
             }
-
-            storageTotal += (deviceMeta.count + deviceMeta.offsetCount) * deviceMeta.storage * $scope.getDeviceCompressionFactorForStorage(deviceMeta) * $scope.getDeviceRedundancyFactor(deviceMeta) * $scope.getDeviceSpecificStorageBonus(deviceMeta);
+        } else {
+            return (device.count + device.offsetCount) * device.storage * $scope.getDeviceCompressionFactorForStorage(device) * $scope.getDeviceRedundancyFactor(device) * $scope.getDeviceSpecificStorageBonus(device);
         }
         return storageTotal + $scope.refactoredStorage;
     };
@@ -1159,7 +1160,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         var i, cpuFromDevice, cpuTotal;
         cpuTotal = 0;
         for (i = 0; i < $scope.deviceMeta.items.length; i += 1) {
-            cpuFromDevice = $scope.getCPUGenerated($scope.deviceMeta.items[i].id);
+            cpuFromDevice = $scope.getDataGeneratedPerTick($scope.deviceMeta.items[i]);
             cpuTotal += cpuFromDevice;
         }
         return cpuTotal;
@@ -1175,12 +1176,12 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             reqObj = requirement[i];
             switch (reqObj.type) {
             case 'device':
-                if ($scope.getDeviceMeta(reqObj.ref).count < reqObj.value) {
+                if ($scope.deviceMeta.items[reqObj.ref].count < reqObj.value) {
                     isMet = false;
                 }
                 break;
             case 'science':
-                if ($scope.getScienceMeta(reqObj.ref).count < reqObj.value) {
+                if ($scope.scienceMeta.items[reqObj.ref].count < reqObj.value) {
                     isMet = false;
                 }
                 break;
@@ -1209,6 +1210,18 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         var buyPrice = $scope.getDeviceDataCost(device);
         return $scope.data >= buyPrice && buyPrice > 0;
     };
+
+    $scope.shouldShowDevice = function (device) {
+        if (device.unlocked) {
+            return true;
+        } else {
+            if (device.dataCostBase / 5 <= $scope.data) {
+                device.unlocked = true;
+                return true;
+            }
+        }
+        return false;
+    }
 
     $scope.getDeviceBuyCount = function (device) {
         var i, price, count, lastAffordable;
@@ -1401,6 +1414,6 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         }
         var count = $scope.getDeviceBuyCount(device);
         $scope.data -= $scope.getDeviceDataCost(device);
-        $scope.hackDevice(device.id, count);
+        $scope.hackDevice(device, count);
     };
 }]);

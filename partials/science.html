@@ -1,6 +1,6 @@
 <h2>Available:</h2>
 <div class="science-items-wrapper">
-    <div class="science-item" ng-show="(science.count > 0 || getScienceCost(science) <= data * 5) && science.count < science.max"
+    <div class="science-item" ng-show="(shouldSeeScience(science) || science.count > 0) && science.count < science.max"
     ng-repeat="science in scienceMeta.items">
 
         <a ng-enabled="canBuyScience(science)" class="round-borders btn btn-sm btn-primary btn-science"
@@ -15,7 +15,7 @@
     </div>
 </div>
 <h2>Purchased:</h2>
-<div class="science-items-wrapper">    
+<div class="science-items-wrapper">
     <div ng-show="science.count === science.max"  ng-repeat="science in scienceMeta.items">
         <div class="round-borders btn btn-sm btn-primary btn-science-max science-item" tooltips tooltip-template="{{ getNameForTooltip(science.name) }}: ({{ science.count }}/{{ science.max }}) {{ science.description }}"
              tooltip-side="right" tooltip-speed="fast" tooltip-class="tooltip-md">

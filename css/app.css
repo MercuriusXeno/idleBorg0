@@ -46,6 +46,9 @@ img {
     max-width: 99%;
 }
 
+tip-tip {
+
+}
 tip-tip:hover {
     display: none;
 }
@@ -193,6 +196,19 @@ tip-tip:hover {
     bottom: 5px;
     right: 5px;
     pointer-events: none;
+}
+
+.btn-device-hacking {
+    font-size: 16pt;
+    position: absolute;
+    color: white;
+    pointer-events: none;
+    bottom: 65px;
+    right: 5px;
+    transition: 0.1s;
+    -ms-transform: rotate(315deg); /* IE 9 */
+    -webkit-transform: rotate(315deg); /* Chrome, Safari, Opera */
+    transform: rotate(315deg);
 }
 
 .btn-device-buy {
