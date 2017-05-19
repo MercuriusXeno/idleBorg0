@@ -84,7 +84,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             newUpgrades.items.length //upgrade id
             , device.id //upgrade device id
             , 'Quantum Entanglement' //name
-            , 'Improves this and lesser devices by 10% in storage, DPS and risk.' //description
+            , 'Improves this and lesser devices by 10% in storage and DPS.' //description
             , 'material-icons' //font family name
             , 'timeline' //font family icon
             , 100e4 * device.dataCostBase
@@ -198,7 +198,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         $scope.scienceMeta.inject(
             3 //id
             , 'Quantum Entanglement' //name
-            , 'Enables Quantum Entanglement on each device; Risk -10%, Storage & DPS + 10%. Cascades to lesser tiers.' //description
+            , 'Enables Quantum Entanglement on each device; Storage & DPS + 10%. Cascades to lesser tiers.' //description
             , 'material-icons' //icon font family
             , 'timeline' //icon font ID
             , 40e9 //cost
@@ -234,7 +234,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         $scope.scienceMeta.inject(
             6 //id
             , 'Advanced Clustering' //name
-            , 'Device power is increased by 0.5% per device, per level.' //description
+            , 'Device power is increased by 0.02% per device, per level.' //description
             , 'material-icons' //icon font family
             , 'device_hub' //icon font ID
             , 120e6 //cost
@@ -695,7 +695,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'filter_list' //icon font ID
             , 20e11 //cost
             , 20 //cost multiplier
-            , 1 //max
+            , 5 //max
             , {} //requirements
         );
 
@@ -725,6 +725,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
                 , hacking: 0 //tells the browser to disable the button when true. you can only hack a single device per tick.
                 , count: 0 //how many of a device you have hacked. This determines cost and other things.
                 , offsetCount: 0 //this is a count you get without factoring into costs, among other things.
+                , immunity: 0 //the number of ticks of immunity you have for a device.
             });
             $scope.generateUpgradeTemplateForDevice($scope.deviceMeta.items[id]);
         };
@@ -978,7 +979,11 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
     };
 
     $scope.hasWorkScience = function () {
-        return $scope.scienceMeta.items[29]; //Form and function
+        return $scope.scienceMeta.items[29].count > 0; //Form and function
+    };
+
+    $scope.dataMiningSlider = {
+        value: 20
     };
 
     $scope.removeDevice = function (deviceID) {
@@ -995,14 +1000,37 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         case 1://personal computers
             multiplier *= Math.pow(0.1, $scope.scienceMeta.items[10].count);//burnt pixels
             break;
+        case 2://personal computers
+            multiplier *= Math.pow(0.1, $scope.scienceMeta.items[12].count);//flaky wifi
+            break;
+        case 3://personal computers
+            multiplier *= Math.pow(0.1, $scope.scienceMeta.items[13].count);//sql injection
+            break;
+        case 4://personal computers
+            multiplier *= Math.pow(0.1, $scope.scienceMeta.items[14].count);//garbage statistics
+            break;
+        case 5://personal computers
+            multiplier *= Math.pow(0.1, $scope.scienceMeta.items[15].count);//conspiracy theories
+            break;
+        case 6://personal computers
+            multiplier *= Math.pow(0.1, $scope.scienceMeta.items[16].count);//out of sight
+            break;
+        case 7://personal computers
+            multiplier *= Math.pow(0.1, $scope.scienceMeta.items[17].count);//orbital uncertainty
+            break;
+        case 8://personal computers
+            multiplier *= Math.pow(0.1, $scope.scienceMeta.items[18].count);//fermi paradox
+            break;
         }
+        multiplier *= Math.pow(0.01, $scope.scienceMeta.items[5].count); //improbability generator
+        multiplier *= Math.pow(0.5, $scope.scienceMeta.items[21].count); //introvert subversion
         return 1;
     };
 
     $scope.getQuantumTotalLevelForDevice = function (device) {
-        var index = device.id, i, deviceMeta, quantumLevel = 0;
-        for (i = 8; i > index; i -= 1) {
-            deviceMeta = $scope.deviceMeta.items[i];
+        var index = device.id, quantumLevel = 0;
+        for (var i = 8; i > index; i -= 1) {
+            var deviceMeta = $scope.deviceMeta.items[i];
             quantumLevel += device.upgradeList[3].count; //3 is quantum
         }
         return quantumLevel;
@@ -1018,10 +1046,6 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         if (device.upgradeList[2].count > 0) {
             riskTotal *= Math.pow(0.5, device.upgradeList[2].count);
         }
-        //quantum bonus per device
-        if ($scope.getQuantumTotalLevelForDevice(device) > 0) {
-            riskTotal *= Math.pow(0.9, $scope.getQuantumTotalLevelForDevice(device));
-        }
         return riskTotal;
     };
 
@@ -1030,7 +1054,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             return 0;
         }
         var riskAgainst;
-        riskAgainst = $scope.population / $scope.getDeviceRisk(device);
+        riskAgainst = 1 / ($scope.getDeviceRisk(device) / $scope.population);
         if (riskAgainst < 1) {
             riskAgainst = 1;
         }
@@ -1040,16 +1064,12 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
     $scope.getDataGeneratedPerTick = function (device) {
         var multiplier;
         multiplier = Math.pow(2, Math.floor((device.count + device.offsetCount) / 25))
-        return multiplier * ((device.count + device.offsetCount) * device.cpuBase) * $scope.getDeviceCPUFactor(device);
-    };
-
-    $scope.getDeviceCPUFactor = function (device) {
-        return $scope.getDeviceOptimizationFactor(device) * $scope.getDeviceQuantumFactor(device);
+        return multiplier * ((device.count + device.offsetCount) * device.cpuBase) * $scope.getDeviceOptimizationFactor(device) * $scope.getDeviceQuantumFactor(device);
     };
 
     $scope.getDeviceClusteringFactor = function (device) {
-        var scienceMeta = $scope.scienceMeta.items[6];//clustering, if you have it, it's a permanent bonus to all devices.
-        return Math.pow(1 + (.005 * scienceMeta.count), device.count);
+        var scienceMeta = $scope.scienceMeta.items[6];//advanced clustering, if you have it, it's a permanent bonus to all devices.
+        return 1 + ((.0002 * scienceMeta.count) * device.count);
     };
 
     $scope.getDeviceOptimizationFactor = function (device) {
@@ -1057,7 +1077,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
     };
 
     $scope.getDeviceQuantumFactor = function (device) {
-        return Math.pow(1.1, $scope.getQuantumTotalLevelForDevice(device));
+        return 1 + (0.1 * $scope.getQuantumTotalLevelForDevice(device));
     };
 
     $scope.getDeviceCompressionFactorForStorage = function (device) {
@@ -1074,10 +1094,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
     };
 
     $scope.installClick = function () {
-        //doesn't assume you don't have a phone - evolution abilities may later support advanced placement starts.
-        if ($scope.population <= 0) {
-            $scope.population = 1;
-        }
+        $scope.deviceMeta.items[0].unlocked = true;
         $scope.hackDevice($scope.deviceMeta.items[0], 1); //hack 1 cell phone
     };
 
@@ -1097,6 +1114,32 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         for (var i = 0; i < $scope.deviceMeta.items.length; i += 1) {
             var device = $scope.deviceMeta.items[i];
             if (device.hacking > 0) {
+                //active hardening, immunity to risk during a hack
+                if ($scope.scienceMeta.items[19].count > 0 && device.immunity === 0) {
+                    device.immunity = 1
+                }
+                //here we process the 3 sciences which enable you to "crit" hack. Each device hacking tick has a chance to extend the hack by 1 tick.
+                if (device.id < 4) {
+                    //tier 1-3
+                    //for your protection
+                    var forYourProtection = $scope.scienceMeta.items[22].count;
+                    if (Math.random() < 0.025 * forYourProtection) {
+                        device.hacking += 1;
+                    }
+                } else if (device.id < 7) {
+                    //tier 4-6
+                    //all work and no play
+                    var allWorkNoPlay = $scope.scienceMeta.items[24].count;
+                    if (Math.random() < 0.025 * allWorkNoPlay) {
+                        device.hacking += 1;
+                    }
+                } else if (device.id < 9) {
+                    //tier 7-9
+                    var vaporware = $scope.scienceMeta.items[26].count;
+                    if (Math.random() < 0.025 * vaporware) {
+                        device.hacking += 1;
+                    }
+                }
                 device.count += 1;
                 device.hacking -= 1;
             }
@@ -1111,50 +1154,39 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         $scope.data = Math.min($scope.getDeviceStorageMax(), $scope.data + $scope.getTickCPU());
     };
 
-    $scope.getDeviceSpecificStorageBonus = function (device) {
-        var scienceMeta;
-        switch (device.id) {
-        case 0://mobile devices
-            scienceMeta = $scope.scienceMeta.items[9];//chronic migraines
-            break;
-        case 1://personal computers
-            scienceMeta = $scope.scienceMeta.items[10];//burnt pixels
-            break;
-        }
-        if (scienceMeta === null || typeof scienceMeta === 'undefined') {
-            return 1;
-        }
-        if (scienceMeta.count > 0) {
-            return 100;
-        }
-        return 1;
-    };
+    $scope.getDeviceStorageBonus = function (device) {
+        return $scope.getDeviceCompressionFactorForStorage(device) * $scope.getDeviceRedundancyFactor(device) * $scope.getDeviceQuantumFactor(device);
+    }
 
     $scope.getDeviceStorageMax = function (device) {
+        var storageTotal = 0;
         if (typeof device === 'undefined' || device === null) {
-            var i, deviceMeta, storageTotal;
-            storageTotal = 0;
-            for (i = 0; i < $scope.deviceMeta.items.length; i += 1) {
-                deviceMeta = $scope.deviceMeta.items[i];
-                storageTotal += (deviceMeta.count + deviceMeta.offsetCount) * deviceMeta.storage * $scope.getDeviceCompressionFactorForStorage(deviceMeta) * $scope.getDeviceRedundancyFactor(deviceMeta) * $scope.getDeviceSpecificStorageBonus(deviceMeta);
+            for (var i = 0; i < $scope.deviceMeta.items.length; i += 1) {
+                var device = $scope.deviceMeta.items[i];
+                storageTotal += (device.count + device.offsetCount) * device.storage * $scope.getDeviceStorageBonus(device);
             }
         } else {
-            return (device.count + device.offsetCount) * device.storage * $scope.getDeviceCompressionFactorForStorage(device) * $scope.getDeviceRedundancyFactor(device) * $scope.getDeviceSpecificStorageBonus(device);
+            return (device.count + device.offsetCount) * device.storage * $scope.getDeviceStorageBonus(device)
         }
         return storageTotal + $scope.refactoredStorage;
     };
 
     $scope.processRisk = function () {
-        var i, deviceMeta;
-        for (i = 0; i < $scope.deviceMeta.items.length; i += 1) {
-            deviceMeta = $scope.deviceMeta.items[i];
-            if (deviceMeta.count > 0 && $scope.getDeviceRisk(deviceMeta) > 0) {
-                if (Math.random() < 1.0 / ($scope.population / $scope.getDeviceRisk(deviceMeta))) {
-                    $scope.removeDevice(deviceMeta.id);
+        for (var i = 0; i < $scope.deviceMeta.items.length; i += 1) {
+            var deviceMeta = $scope.deviceMeta.items[i];
+            if (deviceMeta.count > 0 && $scope.getDeviceRisk(deviceMeta) > 0 && deviceMeta.immunity === 0) {
+                if (Math.random() < $scope.getDeviceRisk(deviceMeta) / $scope.population) {
+                    //here we apply the % chance of risk negation provided by codependent replication
+                    var codependentReplication = $scope.scienceMeta.items[28].count;
+                    if (Math.random() > codependentReplication * .15) {
+                        $scope.removeDevice(deviceMeta.id);
+                        //here we apply the science passive hardening, which makes you immune for a number of ticks after losing a device
+                        if (deviceMeta.immunity === 0 && $scope.scienceMeta.items[20].count > 0) {
+                            deviceMeta.immunity = $scope.scienceMeta.items[20].count;
+                        }
+                    }
                 }
             }
-            //this sets the scope risk for the object in question
-            deviceMeta.riskPercent = 100.0 / ($scope.population / $scope.getDeviceRisk(deviceMeta));
         }
     };
 
@@ -1225,6 +1257,18 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         return false;
     }
 
+    $scope.getDeviceCostReduction = function (device) {
+        if (device.id < 4) {
+            //getting personal
+            return $scope.scienceMeta.items[23].count * 0.005;
+        } else if (device.id < 7) {
+            return $scope.scienceMeta.items[25].count * 0.005;
+        } else if (device.id < 10) {
+            return $scope.scienceMeta.items[27].count * 0.005;
+        }
+        return 0;
+    }
+
     $scope.getDeviceBuyCount = function (device) {
         var i, price, count, lastAffordable;
         lastAffordable = 0;
@@ -1234,7 +1278,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             i = 0;
             while (price <= $scope.data) {
                 lastAffordable = i;
-                price += device.dataCostBase * Math.pow(device.dataCostIncrement, device.count + i);
+                price += device.dataCostBase * Math.pow(device.dataCostIncrement - $scope.getDeviceCostReduction(device), device.count + i);
                 i += 1;
             }
             return lastAffordable;
@@ -1253,13 +1297,13 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             i = 0;
             while (price <= $scope.data) {
                 lastAffordable = price;
-                price += device.dataCostBase * Math.pow(device.dataCostIncrement, device.count + i);
+                price += device.dataCostBase * Math.pow(device.dataCostIncrement - $scope.getDeviceCostReduction(device), device.count + i);
                 i += 1;
             }
             price = lastAffordable;
         } else {
             for (i = 0; i < count; i += 1) {
-                price += device.dataCostBase * Math.pow(device.dataCostIncrement, device.count + i);
+                price += device.dataCostBase * Math.pow(device.dataCostIncrement - $scope.getDeviceCostReduction(device), device.count + i);
             }
         }
         return Math.round(price * 100) / 100;

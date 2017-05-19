@@ -1,6 +1,6 @@
 
 /*global angular*/
-angular.module('gameApp', ['ngRoute', 'angular-dialgauge', 'timer', 'ngSanitize', 'idleBorg', '720kb.tooltips', 'ngStorage']).config(function ($routeProvider, $sceDelegateProvider) {
+angular.module('gameApp', ['ngRoute', 'ngSanitize', 'idleBorg', '720kb.tooltips', 'ngStorage', 'rzModule']).config(function ($routeProvider, $sceDelegateProvider) {
     'use strict';
     $routeProvider.when('/data', {
         templateUrl: 'partials/data.html'
