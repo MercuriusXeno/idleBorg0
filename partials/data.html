@@ -16,7 +16,7 @@
         <div class="btn-device-wrapper">
             <a ng-click="buyDevice(device)" ng-class="(!canBuyDevice(device) || device.hacking > 0 ? 'btn-disabled' : 'btn-enabled')"
                class="btn round-borders-left"
-               tooltips tooltip-speed="fast" tooltip-side="bottom"
+               tooltips tooltip-speed="fast" tooltip-side="top"
                tooltip-template="{{ getNameForTooltip(device.name) }}: {{ device.description }} ">
                 <i class="btn-device" ng-class="device.icon + ' ' + getCanBuyColor('device', device)"
                    ng-bind="device.iconFontID" ng-disabled="data < getDeviceBuyPrice(device)">

@@ -41,7 +41,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'material-icons' //font family name
             , 'call_merge' //font family icon
             , 125 * device.dataCostBase //base cost of device upgrade is predicated on the base cost of the device it is derived from, at the time of writing.
-            , 2.4 //coefficient of the cost, multiplied for each level.
+            , 7.2 //coefficient of the cost, multiplied for each level.
             , compressionReq.items //requirement template of the item
         );
 
@@ -58,7 +58,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'material-icons' //font family name
             , 'call_split' //font family icon
             , 2500 * device.dataCostBase //cost base
-            , 4 //cost coefficient
+            , 8 //cost coefficient
             , networkReq.items //requirement template
         );
 
@@ -73,7 +73,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'material-icons' //font family name
             , 'shuffle' //font family icon
             , 50e3 * device.dataCostBase //cost base
-            , 5.6 //cost coefficient
+            , 8.8 //cost coefficient
             , obfuscateReq.items
         );
 
@@ -88,7 +88,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'material-icons' //font family name
             , 'timeline' //font family icon
             , 100e4 * device.dataCostBase
-            , 7.2 //cost coefficient
+            , 9.6 //cost coefficient
             , quantumReq.items //requirement template
         );
 
@@ -157,6 +157,8 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
 
         //this is where I'm creating the science types for the player to research, their descriptions, requirements, etc.
         //I'm hard coding the ids because integers are a bit more performant than string indexing, and I've referred to them explicitly when they are consumed, so I don't want to change them.
+        //the ids themselves aren't important or index-used, but I put them here so that it's painfully evident that an ordering issue is present.
+        //some ids are even out of order.
         $scope.scienceMeta.inject(
             0 //id
             , 'Compression' //name
@@ -975,8 +977,8 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         return false;
     };
 
-    $scope.workAvailable = function () {
-        return false;//stub
+    $scope.hasWorkScience = function () {
+        return $scope.scienceMeta.items[29]; //Form and function
     };
 
     $scope.removeDevice = function (deviceID) {
@@ -1318,6 +1320,8 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         case 1:
             return 10;
         case 10:
+            return 25;
+        case 25:
             return 100;
         case 100:
             return 0;

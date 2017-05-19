@@ -19,7 +19,7 @@
     </li>
     <li>
         <div>
-            <a href="#/work" ng-click="setTab('work')" tooltips tooltip-template="{{ getNameForTooltip('Work') }}: exchange resources and unlock opportunities." tooltip-side="bottom" tooltip-speed="fast" ng-show="workAvailable()"><i class="ion ion-ios-briefcase btn-tab" ng-class="selectedTab === 'work' ? 'fg-black btn-tab-selected' : 'fg-cyan'"><span>&nbsp;Work</span></i></a>
+            <a href="#/work" ng-click="setTab('work')" tooltips tooltip-template="{{ getNameForTooltip('Work') }}: exchange resources and unlock opportunities." tooltip-side="bottom" tooltip-speed="fast" ng-show="hasWorkScience()"><i class="ion ion-ios-briefcase btn-tab" ng-class="selectedTab === 'work' ? 'fg-black btn-tab-selected' : 'fg-cyan'"><span>&nbsp;Work</span></i></a>
         </div>
     </li>
     <li>
