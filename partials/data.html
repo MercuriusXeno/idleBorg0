@@ -12,10 +12,10 @@
 </div>
 <br>
 <div class="card-container no-padding" ng-show="hasDevice()">
-    <div class="round-borders-inset no-padding btn-device-card-wrapper" ng-show="shouldShowDevice(device)" ng-repeat="device in deviceMeta.items">
+    <div class="round-borders-inset no-padding btn-device-card-wrapper" ng-show="shouldShowDevice(device)" ng-repeat="device in deviceItems">
         <div class="btn-device-wrapper">
             <a ng-click="buyDevice(device)" ng-class="(!canBuyDevice(device) || device.hacking > 0 ? 'btn-disabled' : 'btn-enabled')"
-               class="btn round-borders-left"
+               class="btn round-borders-left no-padding"
                tooltips tooltip-speed="fast" tooltip-side="top"
                tooltip-template="{{ getNameForTooltip(device.name) }}: {{ device.description }} ">
                 <i class="btn-device" ng-class="device.icon + ' ' + getCanBuyColor('device', device)"
@@ -34,7 +34,7 @@
         </div>
         <div class="btn-device-info-wrapper">
             <div class="btn-upgrade-group">
-                <div ng-repeat="upgrade in device.upgradeList"
+                <div ng-repeat="upgrade in device.upgrades"
                       tooltips tooltip-speed="fast" tooltip-side="top" tooltip-template="{{ getTooltipTemplateForUpgrade(upgrade)}}">
                     <div ng-click="canBuyUpgrade(upgrade) && buyUpgrade(upgrade)" ng-class="getUpgradeCSS(upgrade)" class="noselect">
                         <i class="btn-upgrade-image" ng-class="upgrade.icon + ' ' + getCanBuyColor('upgrade', upgrade)" ng-bind="upgrade.iconFontID"></i>
@@ -46,13 +46,21 @@
             </div>
             <div class="device-card-text-left">
                 <span ng-show="getDeviceDataCost(device) > 0"><span class="fg-gold">Cost</span>: {{ display(getDeviceDataCost(device))}}B</span>
-                <span ng-show="getDeviceDataCost(device) == 0"><span class="fg-gold">Cost</span>: {{ display(getDeviceDataCost(device, 1))}}B</span>
+                <span ng-show="getDeviceDataCost(device) === 0"><span class="fg-gold">Cost</span>: {{ display(getDeviceDataCost(device, 1))}}B</span>
                 <br>
-                <span class="fg-cyan">{{ display(getDataGeneratedPerTick(device) * getTicksPerSecond()) }}B/sec</span>
-                <span class="fg-white">({{ display(getDataGeneratedPerTick(device) * 100 / getTickCPU(), true) }}%)</span>
+                <span ng-show="getDataGeneratedPerTick(device) > 0">
+                    <span class="fg-cyan">{{ display(getDataGeneratedPerTick(device) * getTicksPerSecond()) }}B/sec </span><span class="fg-white">({{ display(getDataGeneratedPerTick(device) * 100 / getTickCPU(), true) }}%)</span>
+                </span>
+                <span ng-show="getDataGeneratedPerTick(device) === 0">
+                    <span class="fg-cyan">{{ display(device.cpuBase * getTicksPerSecond()) }}B/sec </span>
+                </span>
                 <br>
-                <span class="fg-gray">Holds</span> {{ display(getDeviceStorageMax(device)) }}B
-                <span class="fg-white">({{ display(getDeviceStorageMax(device) * 100 / getDeviceStorageMax(), true) }}%)</span>
+                <span ng-show="getDeviceStorageMax(device) > 0">
+                    <span class="fg-gray">Holds</span> {{ display(getDeviceStorageMax(device)) }}B <span class="fg-white">({{ display(getDeviceStorageMax(device) * 100 / getDeviceStorageMax(), true) }}%)</span>
+                </span>
+                <span ng-show="getDeviceStorageMax(device) === 0">
+                    <span class="fg-gray">Holds</span> {{ display(device.storage) }}B
+                </span>
                 <br>
                 <span class="fg-red">Risk of Loss:</span> 1 : {{ display(getDeviceRiskForDisplay(device), true) }}
             </div>

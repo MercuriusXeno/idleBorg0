@@ -10,7 +10,7 @@
         </div>
     </li>
     <li>
-        <div ng-show="scienceAvailable()" tooltips tooltip-template="{{ getNameForTooltip('Science') }}: Spend resources to unlock technology"
+        <div ng-show="scienceAvailable()" ng-click="setTab('science')" tooltips tooltip-template="{{ getNameForTooltip('Science') }}: Spend resources to unlock technology"
              tooltip-side="bottom" tooltip-speed="fast">
             <a href="#/science" ng-click="setTab('science')">
                 <i class="ion ion-beaker btn-tab" ng-class="selectedTab === 'science' ? 'fg-black btn-tab-selected' : (shouldHighlightScienceTab() ? 'fg-red' : 'fg-cyan')" ><span>&nbsp;Science</span></i>

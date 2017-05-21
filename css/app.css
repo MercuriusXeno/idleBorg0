@@ -46,9 +46,6 @@ img {
     max-width: 99%;
 }
 
-tip-tip {
-
-}
 tip-tip:hover {
     display: none;
 }
@@ -165,6 +162,7 @@ tip-tip:hover {
 
 .btn-device-wrapper {
     position: absolute;
+    z-index: 1;
 }
 
 .btn-device-info-wrapper {
@@ -179,13 +177,12 @@ tip-tip:hover {
 .btn-device {
     display: flex;
     flex-direction: column;
-    margin: auto;
-    padding-top: 18px;
+    padding-top: 30px;
     font-size: 55pt;
-    min-width: 80px;
-    max-width: 80px;
-    min-height: 132px;
-    max-height: 132px;
+    min-width: 103px;
+    max-width: 103px;
+    min-height: 144px;
+    max-height: 144px;
     cursor: pointer;
 }
 
@@ -234,6 +231,7 @@ tip-tip:hover {
     position: absolute;
     left: 20px;
     display: flex;
+    z-index: 999 !important;
 }
 
 .btn-upgrade-wrapper {
@@ -316,11 +314,6 @@ tip-tip:hover {
 
 .btn-science-image {
     font-size: 48pt;
-}
-
-.tooltip-md {
-    font-size: 14pt;
-    pointer-events:none;
 }
 
 .tooltip-name {

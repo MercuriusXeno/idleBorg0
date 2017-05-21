@@ -1,7 +1,7 @@
 <h2>Available:</h2>
 <div class="science-items-wrapper">
     <div class="science-item" ng-show="(shouldSeeScience(science) || science.count > 0) && science.count < science.max"
-    ng-repeat="science in scienceMeta.items">
+    ng-repeat="science in scienceItems | orderBy:getScienceCost">
 
         <a ng-enabled="canBuyScience(science)" class="round-borders btn btn-sm btn-primary btn-science"
            ng-click="buyScience(science)" ng-class="(!canBuyScience(science) ? 'btn-disabled' : 'btn-enabled')"
@@ -16,7 +16,7 @@
 </div>
 <h2>Complete:</h2>
 <div class="science-items-wrapper">
-    <div ng-show="science.count === science.max"  ng-repeat="science in scienceMeta.items">
+    <div ng-show="science.count === science.max"  ng-repeat="science in scienceItems | orderBy:getScienceCost">
         <div class="round-borders btn btn-sm btn-primary btn-science-max science-item" tooltips tooltip-template="{{ getNameForTooltip(science.name) }}: ({{ science.count }}/{{ science.max }}) {{ science.description }}"
              tooltip-side="top" tooltip-speed="fast">
                 <i class="{{ science.icon + ' btn-science-image'}}">{{ science.iconFontID }}</i>
