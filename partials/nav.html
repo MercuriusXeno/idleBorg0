@@ -10,16 +10,16 @@
         </div>
     </li>
     <li>
-        <div ng-show="scienceAvailable()" tooltips tooltip-template="{{ getNameForTooltip('Science') }}: Spend resources to unlock technology"
+        <div ng-show="scienceAvailable()" ng-click="setTab('science')" tooltips tooltip-template="{{ getNameForTooltip('Science') }}: Spend resources to unlock technology"
              tooltip-side="bottom" tooltip-speed="fast">
             <a href="#/science" ng-click="setTab('science')">
-                <i class="ion ion-beaker btn-tab" ng-class="selectedTab === 'science' ? 'fg-black btn-tab-selected' : (scienceReallyAvailableToBuy() ? 'fg-red' : 'fg-cyan')" ><span>&nbsp;Science</span></i>
+                <i class="ion ion-beaker btn-tab" ng-class="selectedTab === 'science' ? 'fg-black btn-tab-selected' : (shouldHighlightScienceTab() ? 'fg-red' : 'fg-cyan')" ><span>&nbsp;Science</span></i>
             </a>
         </div>
     </li>
     <li>
         <div>
-            <a href="#/work" ng-click="setTab('work')" tooltips tooltip-template="{{ getNameForTooltip('Work') }}: exchange resources and unlock opportunities." tooltip-side="bottom" tooltip-speed="fast" ng-show="workAvailable()"><i class="ion ion-ios-briefcase btn-tab" ng-class="selectedTab === 'work' ? 'fg-black btn-tab-selected' : 'fg-cyan'"><span>&nbsp;Work</span></i></a>
+            <a href="#/work" ng-click="setTab('work')" tooltips tooltip-template="{{ getNameForTooltip('Work') }}: exchange resources and unlock opportunities." tooltip-side="bottom" tooltip-speed="fast" ng-show="hasWorkScience()"><i class="ion ion-ios-briefcase btn-tab" ng-class="selectedTab === 'work' ? 'fg-black btn-tab-selected' : 'fg-cyan'"><span>&nbsp;Work</span></i></a>
         </div>
     </li>
     <li>

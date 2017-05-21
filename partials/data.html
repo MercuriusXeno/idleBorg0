@@ -12,49 +12,57 @@
 </div>
 <br>
 <div class="card-container no-padding" ng-show="hasDevice()">
-    <div class="round-borders-inset no-padding btn-device-card-wrapper" ng-show="device.count > 0 || device.unlocked" ng-repeat="device in deviceMeta.items">
+    <div class="round-borders-inset no-padding btn-device-card-wrapper" ng-show="shouldShowDevice(device)" ng-repeat="device in deviceItems">
         <div class="btn-device-wrapper">
-            <a ng-click="buyDevice(device)" ng-class="(!canBuyDevice(device) ? 'btn-disabled' : 'btn-enabled')"
-               class="btn round-borders-left"
-               tooltips tooltip-speed="fast" tooltip-side="bottom"
-               tooltip-template="{{ getNameForTooltip(device.name) }}: {{ getDeviceMeta(device.id).description }} ">
+            <a ng-click="buyDevice(device)" ng-class="(!canBuyDevice(device) || device.hacking > 0 ? 'btn-disabled' : 'btn-enabled')"
+               class="btn round-borders-left no-padding"
+               tooltips tooltip-speed="fast" tooltip-side="top"
+               tooltip-template="{{ getNameForTooltip(device.name) }}: {{ device.description }} ">
                 <i class="btn-device" ng-class="device.icon + ' ' + getCanBuyColor('device', device)"
                    ng-bind="device.iconFontID" ng-disabled="data < getDeviceBuyPrice(device)">
                 </i>
                 <span class="btn-device-count">
                     {{ device.count }}
                 </span>
+                <span class="btn-device-hacking" ng-show="device.hacking > 0">
+                    HACKING
+                </span>
                 <span class="btn-device-buy">
-                    +{{ getDeviceBuyCount(device) }}
+                    +{{ device.hacking > 0 ? device.hacking : getDeviceBuyCount(device) }}
                 </span>
             </a>
         </div>
         <div class="btn-device-info-wrapper">
             <div class="btn-upgrade-group">
-                <div ng-repeat="upgrade in device.upgradeList"
+                <div ng-repeat="upgrade in device.upgrades"
                       tooltips tooltip-speed="fast" tooltip-side="top" tooltip-template="{{ getTooltipTemplateForUpgrade(upgrade)}}">
                     <div ng-click="canBuyUpgrade(upgrade) && buyUpgrade(upgrade)" ng-class="getUpgradeCSS(upgrade)" class="noselect">
                         <i class="btn-upgrade-image" ng-class="upgrade.icon + ' ' + getCanBuyColor('upgrade', upgrade)" ng-bind="upgrade.iconFontID"></i>
                         <span class="btn-upgrade-count noselect" ng-show="requirementsMet(upgrade.requirement)">
-                            {{ getUpgradeLevel(upgrade)  }}
+                            {{ upgrade.count  }}
                         </span>
                     </div>
                 </div>
             </div>
             <div class="device-card-text-left">
                 <span ng-show="getDeviceDataCost(device) > 0"><span class="fg-gold">Cost</span>: {{ display(getDeviceDataCost(device))}}B</span>
-                <span ng-show="getDeviceDataCost(device) == 0"><span class="fg-gold">Cost</span>: {{ display(getDeviceDataCost(device, 1))}}B</span>
+                <span ng-show="getDeviceDataCost(device) === 0"><span class="fg-gold">Cost</span>: {{ display(getDeviceDataCost(device, 1))}}B</span>
                 <br>
-                <span class="fg-cyan">{{ display(getCPUGenerated(device.id) * getTicksPerSecond()) }}B/sec</span>
-                <span class="fg-white">({{ display(getCPUGenerated(device.id) * 100 / getTickCPU(), true) }}%)</span>
+                <span ng-show="getDataGeneratedPerTick(device) > 0">
+                    <span class="fg-cyan">{{ display(getDataGeneratedPerTick(device) * getTicksPerSecond()) }}B/sec </span><span class="fg-white">({{ display(getDataGeneratedPerTick(device) * 100 / getTickCPU(), true) }}%)</span>
+                </span>
+                <span ng-show="getDataGeneratedPerTick(device) === 0">
+                    <span class="fg-cyan">{{ display(device.cpuBase * getTicksPerSecond()) }}B/sec </span>
+                </span>
                 <br>
-                <span class="fg-gray">Holds</span> {{ display(getDeviceStorageMax(device.id)) }}B
-                <span class="fg-white">({{ display(getDeviceStorageMax(device.id) * 100 / getDeviceStorageMax(), true) }}%)</span>
+                <span ng-show="getDeviceStorageMax(device) > 0">
+                    <span class="fg-gray">Holds</span> {{ display(getDeviceStorageMax(device)) }}B <span class="fg-white">({{ display(getDeviceStorageMax(device) * 100 / getDeviceStorageMax(), true) }}%)</span>
+                </span>
+                <span ng-show="getDeviceStorageMax(device) === 0">
+                    <span class="fg-gray">Holds</span> {{ display(device.storage) }}B
+                </span>
                 <br>
                 <span class="fg-red">Risk of Loss:</span> 1 : {{ display(getDeviceRiskForDisplay(device), true) }}
-            </div>
-            <div class="device-card-text-right">
-                <span class="fg-gold">{{ getDeviceNetworkFactor(device) &lt; 1 ? 'Loss' : 'Gain' }}</span>:<br>{{ display(getDeviceNetworkFactor(device) * 100 - 100, true) }}%
             </div>
         </div>
     </div>

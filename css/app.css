@@ -162,6 +162,7 @@ tip-tip:hover {
 
 .btn-device-wrapper {
     position: absolute;
+    z-index: 1;
 }
 
 .btn-device-info-wrapper {
@@ -176,13 +177,12 @@ tip-tip:hover {
 .btn-device {
     display: flex;
     flex-direction: column;
-    margin: auto;
-    padding-top: 18px;
+    padding-top: 30px;
     font-size: 55pt;
-    min-width: 80px;
-    max-width: 80px;
-    min-height: 132px;
-    max-height: 132px;
+    min-width: 103px;
+    max-width: 103px;
+    min-height: 144px;
+    max-height: 144px;
     cursor: pointer;
 }
 
@@ -193,6 +193,19 @@ tip-tip:hover {
     bottom: 5px;
     right: 5px;
     pointer-events: none;
+}
+
+.btn-device-hacking {
+    font-size: 16pt;
+    position: absolute;
+    color: white;
+    pointer-events: none;
+    bottom: 65px;
+    right: 5px;
+    transition: 0.1s;
+    -ms-transform: rotate(315deg); /* IE 9 */
+    -webkit-transform: rotate(315deg); /* Chrome, Safari, Opera */
+    transform: rotate(315deg);
 }
 
 .btn-device-buy {
@@ -279,6 +292,10 @@ tip-tip:hover {
 
 .science-items-wrapper {
     display: flex;
+    max-width: 1100px;
+    min-width: 366px;
+    flex-flow: row wrap;
+    margin: auto;
 }
 
 .science-item {
@@ -296,11 +313,6 @@ tip-tip:hover {
 
 .btn-science-image {
     font-size: 48pt;
-}
-
-.tooltip-md {
-    font-size: 14pt;
-    pointer-events:none;
 }
 
 .tooltip-name {

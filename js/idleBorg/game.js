@@ -1,275 +1,781 @@
 //Controller file
 /*global angular, console*/
+/*jslint white: true */ //shhh jslint, let me space things how I want to. I prefix with commas because it clarifies a list continuation, separation of elements, etc.
+/*jslint vars: true */ //shh jslint, I refuse to put my variables at the top of a function. Iterators of a for loop should be declared in the for loop. This is just stupid.
 angular.module('gameApp').controller('GameController', ['$scope', '$location', '$interval', '$route', '$localStorage', '$window', '$http', '$sessionStorage', function ($scope, $location, $interval, $route, $localStorage, $window, $http, $sessionStorage) {
     'use strict';
 
-    $scope.version = "0.0.0.5";
+    $scope.version = "0.0.1.4";
 
     $scope.generateUpgradeTemplateForDevice = function (device) {
-        var newUpgrades = {}, compressionReq = {}, networkReq = {}, obfuscateReq = {}, quantumReq = {};
-        newUpgrades.inject = function (id, deviceID, name, description, icon, iconFontID, cpuCostBase, cpuCostIncrement, requirement) {
-            newUpgrades.items.push({
-                id: id,
-                deviceID: deviceID,//the device this
-                name: name,
-                description: description,
-                icon: icon,
-                iconFontID: iconFontID,
-                cpuCostBase: cpuCostBase,
-                cpuCostIncrement: cpuCostIncrement,
-                requirement: requirement
+        if (device === null) {
+            return;
+        }
+        var upgrades = [];
+
+        upgrades.add = function (name, description, icon, iconFontID, dataCostBase, dataCostIncrement, requirement) {
+            upgrades.push({
+                name: name
+                , description: description
+                , icon: icon
+                , iconFontID: iconFontID
+                , dataCostBase: dataCostBase
+                , dataCostIncrement: dataCostIncrement
+                , requirement: requirement
+                , count: 0
             });
         };
-        //reset object
-        newUpgrades.items = [];
+        //generates the upgrades for each device tier
+        //the upgrades are: Compression, Optimization, Encryption and Quantum. Essentially they upgrade: storage, DPS, RISK, and.. scaling improvements to lower tiers respectively.
+        upgrades.add(
+            'Compression' //upgrade name for all devices
+            , 'Quadrupes storage for this device tier each level.' //upgrade description for all devices
+            , 'material-icons' //font family name
+            , 'call_merge' //font family icon
+            , 125 * device.dataCostBase //base cost of device upgrade is predicated on the base cost of the device it is derived from, at the time of writing.
+            , 7.2 //coefficient of the cost, multiplied for each level.
+            , [{type: 'science', name: 'Compression'}] //requirement template of the item
+        );
 
-        compressionReq.items = [];
-        compressionReq.inject = function (id, type, ref, value) { compressionReq.items.push({id: id, type: type, ref: ref, value: value}); };
-        compressionReq.inject(compressionReq.items.length, 'device', device.id, 10);//10 mobiles
-        compressionReq.inject(compressionReq.items.length, 'science', 0, 1);//compression
-        //this generates 8 stock templates, 1 for each device, and gives them names.
-        newUpgrades.inject(newUpgrades.items.length, device.id, 'Compression', 'Increase storage 50% and DPS by 100%, per level. Multiplicative.', 'material-icons', 'call_merge', 125 * device.cpuCostBase, 4, compressionReq.items);
+        upgrades.add(
+            'Optimization' //name
+            , 'Doubles DPS for this device tier each level.' //description
+            , 'material-icons' //font family name
+            , 'call_split' //font family icon
+            , 2500 * device.dataCostBase //cost base
+            , 8 //cost coefficient
+            , [{type: 'science', name: 'Optimization'}] //requirement template
+        );
 
-        networkReq.items = [];
-        networkReq.inject = function (id, type, ref, value) { networkReq.items.push({id: id, type: type, ref: ref, value: value}); };
-        networkReq.inject(networkReq.items.length, 'device', device.id, 25);
-        networkReq.inject(networkReq.items.length, 'science', 1, 1);//networking
-        newUpgrades.inject(newUpgrades.items.length, device.id, 'Optimization', 'Use clustering to combat network loss by 10% per level. Additive.', 'material-icons', 'call_split', 25e2 * device.cpuCostBase, 4.5, networkReq.items);
+        upgrades.add(
+            'Encryption' //name
+            , 'Halves risk for this device tier each level.' //description
+            , 'material-icons' //font family name
+            , 'shuffle' //font family icon
+            , 50e3 * device.dataCostBase //cost base
+            , 8.8 //cost coefficient
+            , [{type: 'science', name: 'Encryption'}]
+        );
 
-        obfuscateReq.items = [];
-        obfuscateReq.inject = function (id, type, ref, value) { obfuscateReq.items.push({id: id, type: type, ref: ref, value: value}); };
-        obfuscateReq.inject(obfuscateReq.items.length, 'device', device.id, 50);
-        obfuscateReq.inject(obfuscateReq.items.length, 'science', 2, 1);//network security
-        newUpgrades.inject(newUpgrades.items.length, device.id, 'Encryption', 'Cuts your risk in half per level, multiplicative.', 'material-icons', 'shuffle', 50e3 * device.cpuCostBase, 5, obfuscateReq.items);
+        upgrades.add(
+            'Quantum Entanglement' //name
+            , 'Improves this and lesser devices by 10% in storage and DPS.' //description
+            , 'material-icons' //font family name
+            , 'timeline' //font family icon
+            , 100e4 * device.dataCostBase
+            , 9.6 //cost coefficient
+            , [{type: 'science', name: 'Quantum Entanglement'}] //requirement template
+        );
 
-        quantumReq.items = [];
-        quantumReq.inject = function (id, type, ref, value) { quantumReq.items.push({id: id, type: type, ref: ref, value: value}); };
-        quantumReq.inject(quantumReq.items.length, 'device', device.id, 100);
-        quantumReq.inject(quantumReq.items.length, 'device', 7, 1);//you must have at least 1 quantum computer.
-        quantumReq.inject(quantumReq.items.length, 'science', 3, 1);//quantum entanglement
-        newUpgrades.inject(newUpgrades.items.length, device.id, 'Quantum Entanglement', 'Increase device power based on overall entanglement of lesser devices, and reduce risk.', 'material-icons', 'timeline', 100e4 * device.cpuCostBase, 5.5, quantumReq.items);
-
-        device.upgradeList = newUpgrades.items;
+        //adds the newly created upgrade template as a property of the device it's being applied to.
+        device.upgrades = upgrades;
     };
 
-
-    $scope.getScienceMeta = function (scienceID) {
-        var i;
-        for (i = 0; i < $scope.scienceMeta.items.length; i += 1) {
-            if ($scope.scienceMeta.items[i].id === scienceID) {
-                return $scope.scienceMeta.items[i];
+    $scope.getScience = function (scienceName) {
+        for (var i = 0; i < $scope.scienceItems.length; i+= 1) {
+            var scienceMeta = $scope.scienceItems[i];
+            if (scienceMeta.name === scienceName) {
+                return scienceMeta;
             }
         }
-        return null;
-    };
+        return {count: 0};
+    }
 
-    $scope.msBetweenTicks = 1000;
-    $scope.getTickInterval = function () {
-        return ($scope.msBetweenTicks / Math.pow(2, $scope.getScienceMeta(4).count));
-    };
-
-    $scope.resetGameInterval = function () {
-        if (angular.isDefined($scope.gameInterval)) {
-            $interval.cancel($scope.gameInterval);
+    $scope.getDevice = function (deviceName) {
+        for (var i = 0; i < $scope.deviceItems.length; i+= 1) {
+            var deviceMeta = $scope.deviceItems[i];
+            if (deviceMeta.name === deviceName) {
+                return deviceMeta;
+            }
         }
+        return {count: 0};
+    }
+
+    //base ms between ticks, reduced by time dilation in a linear fashion, but it's with a formula.
+    $scope.msBetweenTicks = 1000;
+
+    $scope.getTicksPerSecond = function () { return 1 + $scope.getScience('Time Dilation').count; };
+
+    //returns the tick interval based on the science upgrade "Time Dilation" which increases your TPS by 1 per level. Science Meta 4 is time dilation.
+    $scope.getTickInterval = function () { return $scope.msBetweenTicks / $scope.getTicksPerSecond(); };
+
+    //resets the interval the game needs to actually run. Needed when it starts or changes. Cancels existing interval (if any) as well.
+    $scope.resetGameInterval = function () {
+        if (angular.isDefined($scope.gameInterval)) { $interval.cancel($scope.gameInterval); }
         $scope.gameInterval = $interval(function () { $scope.gameTick(); }, $scope.getTickInterval());
     };
 
-    $scope.isPropertyPlayerData = function (property) {
-        return property === 'count' || property === 'unlocked' || property === 'disabled' || property === 'suppressed' || property === 'compressionLevel' || property === 'networkLevel' || property === 'quantumLevel' || property === 'riskPercent' || property === 'offsetCount' || property === 'riskLevel';
-    };
+    //debug button that appears only when the URL contains the phrase "127.0.0.1" implying it's running in localhost. Used for maxing data so I can quickly buy things and test progression.
+    $scope.maxDataForDebugging = function () { $scope.data = $scope.getDeviceStorageMax(); };
 
-    $scope.isPropertyMetaData = function (property) {
-        return property === 'upgradeList'  || property === 'requirement';
-    };
-
-    $scope.maxDataForDebugging = function () {
-        $scope.data = $scope.getDeviceStorageMax();
-    };
     $scope.load = function (forceReset) {
-        var i, j, requirementTemplate, copyUpgrades, now, msSinceTimestamp, deviceMeta, playerDeviceMeta, deviceProperty, upgradeProperty, requirementProperty, upgrade, requirement, scienceMeta, playerScienceMeta, scienceProperty;
-        //requirement and upgrade are one-offs, they don't need to be saved.
-        requirementTemplate = {};
-        requirementTemplate.items = [];
-        requirementTemplate.clear = function () {
-            requirementTemplate.items = [];
-        };
-        requirementTemplate.inject = function (id, type, ref, value) {
-            requirementTemplate.items.push({
-                id: id,
-                type: type,//best values for these are gonna be: device,work,science,evolve,upgrade
-                ref: ref,//the id of the object your requirement.. requires
-                value: value//the count must be this or higher
-            });
-        };
-
-        //debug mode! so I can test more rapidly
+        //jslint originally wanted me to declare all variables up front, which is weird: last-possible-moment var declarations are normative in coding, in general. I'll likely break this up later.
+        var now, msSinceTimestamp;
+        //debug mode! so I can test more rapidly. If the URL contains localhost, then we are running it locally so give us debug mode.
         if (window.location.href.indexOf("127.0.0.1") !== -1) {
             $scope.debugMode = true;
         } else {
             $scope.debugMode = false;
         }
 
-        //metas are going to be our lists of things. They take up a lot of space, but they save tons of time in the long run.
-        //these hold all our [forward-facing] info concerning the devices, abilities, upgrades, evolutions, work options, et al, throughout the game.
-        //firstly, this is the list of devices for the Data tab, categorized broadly for simplicity.
-        $scope.deviceMeta = {};
-        $scope.getDeviceMeta = function (deviceID) {
-            var i;
-            for (i = 0; i < $scope.deviceMeta.items.length; i += 1) {
-                if ($scope.deviceMeta.items[i].id === deviceID) {
-                    return $scope.deviceMeta.items[i];
-                }
-            }
-        };
-        $scope.deviceMeta.items = [];
-        $scope.deviceMeta.inject = function (id, name, description, icon, iconFontID, cpuBase, riskBase, storage, cpuCostIncrement, riskIncrement, cpuCostBase, requirement, upgradeList) {
-            $scope.deviceMeta.items.push({
-                id: id, //the id we refer to the device as, for stability reasons.
-                name: name, //friendly name of the device hack 'tier', of which there were 8 at the time of writing.
-                description: description, //brief cue-card description of the device and its drawbacks
-                icon: icon, //the class name of the icon this device uses for its snazzy button. sometimes a second param is needed (see below)
-                iconFontID: iconFontID, //the icon 'name' gets replaced with the font. Leave this an empty string if it's handled fully in-class.
-                cpuBase: cpuBase, //this is how much cpu a single unit generates per tick. a tick isn't an exact measurement of time. you can upgrade your 'tps'
-                riskBase: riskBase, //this is the 'risk factor' of the device against the size of your world. Smaller worlds are harder!
-                storage: storage, //this is how much the device can store. This gets used more later.
-                cpuCostIncrement: cpuCostIncrement, //each level costs [x][previous cost] more, where x is the coefficient below
-                riskIncrement: riskIncrement, //same as above but for risk. you can see that risk grows faster than cpu for this device.
-                cpuCostBase: cpuCostBase, //the initial cost to aquire a single mobile device.
-                requirement: requirement,//the requirement for this device. some devices don't have requirements.
-                upgradeList: upgradeList,//the template of upgrades belonging to this device. each one has a set and they're mostly the same.
-                count: 0, //how many of a device you have hacked. This determines cost and other things.
-                offsetCount: 0, //this is a count you get without factoring into costs, among other things.
-                riskLevel: 0, //this is the risk-negation ability, it reduces your risk from a device.
-                riskPercent: 0,
-                unlocked: false, //tells the browser to hide the item and prevents you from buying it.
-                disabled: 0, //disabling devices completely removes their risk and lets you lie dormant, but sacrifices all the cpu they would generate.
-                suppressed: 0, //suppression is an ability for making devices less risky at the expense of cpu.
-                compressionLevel: 0, //compression lets you store more data by making everything you're storing smaller.
-                networkLevel: 0, //network factor is bad. the bigger it gets, the less cpu your devices generates. It starts being a problem immediately.
-                quantumLevel: 0 //quantum threading is even better. Unlocking this upgrade for each device is really hard though.
+        //metas are going to be our lists of things (templates): info concerning the devices, abilities, upgrades, evolutions, work options, et al, throughout the game.
+
+        $scope.getNameForTooltip = function (name) { return '<span class=\'tooltip-name\'>' + name + '</span>'; };
+
+        $scope.getPriceForTooltip = function (cost) { return '<br><span class=\'tooltip-cost\'>' + $scope.display(cost) + 'B</span>'; };
+
+        // CREATE SCIENCE TEMPLATE FOR THE GAME //
+        $scope.scienceItems = [];
+        $scope.scienceItems.add = function (name, desc, icon, iconFontID, dataCost, dataCostIncrement, max, requirementItems) {
+            $scope.scienceItems.push({
+                name: name //friendly name of the science item
+                , description: desc //description of the research
+                , icon: icon //font family name
+                , iconFontID: iconFontID //font family icon, sometimes it only takes a single class name to get the job done so it can be potentially unused
+                , dataCostBase: dataCost //this is how much data the first research item costs
+                , dataCostIncrement: dataCostIncrement //this is how much the cost increases each level, if applicable
+                , max: max //the maximum number of science upgrades you can get for this item
+                , requirement: requirementItems //these are the requirement items for this object.
+                , count: 0 //this is how many levels of this research the player has acquired
             });
-        };
-
-        $scope.workMeta = {};
-        $scope.workMeta.items = [];
-        $scope.workMeta.inject = function (id, name, description, icon, iconFontID, cpuBase, riskBase, storage, cpuCostIncrement, riskIncrement, cpuCostBase, requirement) {
-            $scope.workMeta.items.push({
-                id: id, //the id we refer to the work as, for stability reasons.
-                name: name, //friendly name of the work
-                description: description, //brief cue-card description of the work
-                icon: icon, //the class name of the icon this work uses
-                iconFontID: iconFontID, //the icon 'name' which gets replaced with the font - this is for when a font item needs to use the & in markup
-                riskBase: riskBase, //this is the 'risk factor' of the job.
-                cpuCostIncrement: cpuCostIncrement, //each level costs [x][previous cost] more, where x is the coefficient below
-                riskIncrement: riskIncrement, //same as above but for risk. you can see that risk grows faster than cpu for this job.
-                cpuCostBase: cpuCostBase, //the cost of a single "cycle" of this work item.
-                requirement: requirement
-            });
-        };
-
-        $scope.scienceMeta = {};
-        $scope.scienceMeta.items = [];
-        $scope.scienceMeta.inject = function (id, name, desc, icon, iconFontID, cpuCost, cpuCostIncrement, requirement, max) {
-            $scope.scienceMeta.items.push({
-                id: id,
-                name: name,
-                description: desc,
-                icon: icon,
-                iconFontID: iconFontID,
-                cpuCostBase: cpuCost,
-                cpuCostIncrement: cpuCostIncrement,
-                requirement: requirement,
-                count: 0,
-                max: max
-            });
-        };
-
-        $scope.getNameForTooltip = function (name) {
-            return '<span class=\'tooltip-name\'>' + name + '</span>';
-        };
-
-        $scope.getPriceForTooltip = function (cost) {
-            return '<br><span class=\'tooltip-cost\'>' + $scope.display(cost) + 'B</span>';
         };
 
         //this is where I'm creating the science types for the player to research, their descriptions, requirements, etc.
-        requirementTemplate.clear();
-        $scope.scienceMeta.inject(0, 'Compression', 'Enables Compression on each device: 50% storage and 100% DPS bonus per level, multiplicative.<br />', 'material-icons', 'call_merge', 5e3, 1, {}, 1);
+        //I'm hard coding the ids because integers are a bit more performant than string indexing, and I've referred to them explicitly when they are consumed, so I don't want to change them.
+        //the ids themselves aren't important or index-used, but I put them here so that it's painfully evident that an ordering issue is present.
+        //some ids are even out of order.
+        $scope.scienceItems.add(
+            'Compression' //name
+            , 'Enables Compression on each device: Quadruples storage for a device tier per level.' //description
+            , 'material-icons' //icon font family
+            , 'call_merge' //icon font ID
+            , 5e3 //cost
+            , 1 //cost multiplier
+            , 1 //max
+            , [{type: 'device', name: 'Personal'}] //requirements
+        );
 
-        requirementTemplate.clear();
-        $scope.scienceMeta.inject(1, 'Optimization', 'Enables Optimization on each device, improving network efficiency by 10% per level, additive.', 'material-icons', 'call_split', 20e5, 1, {}, 1);
+        $scope.scienceItems.add(
+            'Optimization' //name
+            , 'Enables Optimization on each device: Doubles DPS for a device tier per level.' //description
+            , 'material-icons' //icon font family
+            , 'call_split' //icon font ID
+            , 10e5 //cost
+            , 1 //cost multiplier
+            , 1 //max
+            , [{type: 'device', name: 'Database'}] //requirements
+        );
 
-        requirementTemplate.clear();
-        $scope.scienceMeta.inject(2, 'Encryption', 'Enables Encryption on each device, cuts risk factor in half each level.', 'material-icons', 'shuffle', 80e7, 1, {}, 1);
+        $scope.scienceItems.add(
+            'Encryption' //name
+            , 'Enables Encryption on each device: Halves risk for a device tier per level.' //description
+            , 'material-icons' //icon font family
+            , 'shuffle' //icon font ID
+            , 20e7 //cost
+            , 1 //cost multiplier
+            , 1 //max
+            , [{type: 'device', name: 'Government'}] //requirements
+        );
 
-        requirementTemplate.clear();
-        $scope.scienceMeta.inject(3, 'Quantum Entanglement', 'Enable Quantum Entanglement on each device; reducing risk as well as improving DPS by the entanglement of all lesser devices.', 'material-icons', 'timeline', 320e9, 1, {}, 1);
+        $scope.scienceItems.add(
+            'Quantum Entanglement' //name
+            , 'Enables Quantum Entanglement on each device; Storage & DPS + 10%. Cascades to lesser tiers.' //description
+            , 'material-icons' //icon font family
+            , 'timeline' //icon font ID
+            , 40e9 //cost
+            , 1 //cost multiplier
+            , 1 //max
+            , [{type: 'device', name: 'Quantum'}] //requirements
+        );
 
-        requirementTemplate.clear();
-        $scope.scienceMeta.inject(4, 'Time Dilation', 'Double the speed of your processors; increases time resolution.', 'material-icons', 'fast_forward', 1e4, 3000, {}, 5);
+        $scope.scienceItems.add(
+            'Time Dilation' //name
+            , 'Increases time resolution by one tick per second, each level.' //description
+            , 'material-icons' //icon font family
+            , 'fast_forward' //icon font ID
+            , 1e4 //cost
+            , 3000 //cost multiplier
+            , 5 //max
+            , [] //requirements
+        );
 
-        requirementTemplate.clear();
-        $scope.scienceMeta.inject(5, 'Improbability Generator', 'Capable of generating finite amounts of improbability, but no tea.', 'material-icons', 'local_cafe', 7.2e16, 1, {}, 1);
+        $scope.scienceItems.add(
+            'Improbability Generator' //name
+            , 'Capable of generating finite amounts of improbability, but no tea. All Risk / 100.' //description
+            , 'material-icons' //icon font family
+            , 'local_cafe' //icon font ID
+            , 7.2e8 //cost
+            , 1 //cost multiplier
+            , 1 //max
+            , [{type: 'device', name: 'Ether'}] //requirements
+        );
 
-        requirementTemplate.clear();
-        requirementTemplate.inject(requirementTemplate.items.length, 'science', 1, 1);
-        $scope.scienceMeta.inject(6, 'Advanced Clustering', 'Devices now give a bonus for each tier based on how many devices you have. 1% per device, per level, multiplicative.', 'material-icons', 'device_hub', 120e6, 200000, {}, 2);
+        $scope.scienceItems.add(
+            'Advanced Clustering' //name
+            , 'Device power is increased by 0.02% per device, per level.' //description
+            , 'material-icons' //icon font family
+            , 'device_hub' //icon font ID
+            , 120e6 //cost
+            , 200000 //cost multiplier
+            , 5 //max
+            , [{type: 'science', name: 'Optimization'}] //requirements
+        );
 
-        requirementTemplate.clear();
-        $scope.scienceMeta.inject(7, 'Purposeful Redundancy', 'Each device tier storage is increased by 10% for each device, per level. Additive.', 'material-icons', 'cloud_queue', 7000e5, 80, {}, 5);
+        $scope.scienceItems.add(
+            'Purposeful Redundancy' //name
+            , 'Each device tier storage is increased by 1% for each device, per level. Additive.' //description
+            , 'material-icons' //icon font family
+            , 'cloud_queue' //icon font ID
+            , 750e4 //cost
+            , 80 //cost multiplier
+            , 5 //max
+            , [{type: 'science', name: 'Compression'}] //requirements
+        );
 
-        requirementTemplate.clear();
-        $scope.scienceMeta.inject(8, 'Active Refactoring', 'Your storage grows naturally by 1% of your DPS, per level.', 'material-icons', 'cloud_upload', 320e5, 80, {}, 5);
+        $scope.scienceItems.add(
+            'Active Refactoring' //name
+            , 'Your storage grows naturally by 1% of your DPS, per level, but only when it storage is not full.' //description
+            , 'material-icons' //icon font family
+            , 'cloud_upload' //icon font ID
+            , 800e4 //cost
+            , 80 //cost multiplier
+            , 5 //max
+            , [{type: 'science', name: 'Compression'}] //requirements
+        );
 
-        requirementTemplate.clear();
-        $scope.scienceMeta.inject(9, 'Chronic Migraines', 'Your mobile devices deter users, severely reducing risk and greatly increasing storage (99% Risk reduction, 100x storage).', 'material-icons', 'sentiment_very_dissatisfied', 15552e5, 1, {}, 1);
+        $scope.scienceItems.add(
+            'Chronic Migraines' //name
+            , 'Your cellular devices deter users. Risk / 10.' //description
+            , 'material-icons' //icon font family
+            , 'sentiment_very_dissatisfied' //icon font ID
+            , 80e6 //cost
+            , 200 //cost multiplier
+            , 5 //max
+            , [] //requirements
+        );
 
-        requirementTemplate.clear();
-        $scope.scienceMeta.inject(10, 'Burnt Pixels', 'Your personal computing devices deter users, severely reducing risk and greatly increasing storage (99% Risk reduction, 100x storage).', 'material-icons', 'remove_from_queue', 80e9, 1, {}, 1);
+        $scope.scienceItems.add(
+            'Burnt Pixels' //name
+            , 'Your PCs deter users. Risk / 10.' //description
+            , 'material-icons' //icon font family
+            , 'remove_from_queue' //icon font ID
+            , 80e7 //cost
+            , 200 //cost multiplier
+            , 5 //max
+            , [] //requirements
+        );
 
+        $scope.scienceItems.add(
+            'Passive Compression' //name
+            , 'Your storage grows naturally by 0.2% of your DPS, per level, but only when storage is full.' //description
+            , 'material-icons' //icon font family
+            , 'cloud_download' //icon font ID
+            , 320e5 //cost
+            , 120 //cost multiplier
+            , 5 //max
+            , [{type: 'science', name: 'Active Refactoring'}] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Flaky Wifi' //name
+            , 'Your workstations deter users. Risk / 10.' //description
+            , 'material-icons' //icon font family
+            , 'signal_wifi_off' //icon font ID
+            , 80e8 //cost
+            , 200 //cost multiplier
+            , 5 //max
+            , [] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'SQL Injection' //name
+            , 'Your databases deter users. Risk / 10.' //description
+            , 'material-icons' //icon font family
+            , 'input' //icon font ID
+            , 80e9 //cost
+            , 200 //cost multiplier
+            , 5 //max
+            , [] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Garbage Statistics' //name
+            , 'Your academic servers deter users.  Risk / 10.' //description
+            , 'material-icons' //icon font family
+            , 'delete' //icon font ID
+            , 80e10 //cost
+            , 200 //cost multiplier
+            , 5 //max
+            , [] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Conspiracy Theories' //name
+            , 'Your government servers deter users. Risk / 10.' //description
+            , 'material-icons' //icon font family
+            , 'record_voice_over' //icon font ID
+            , 80e11 //cost
+            , 200 //cost multiplier
+            , 5 //max
+            , [] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Out of Sight' //name
+            , 'Your nanocomputers deter users. Risk / 10.' //description
+            , 'material-icons' //icon font family
+            , 'visibility_off' //icon font ID
+            , 80e12 //cost
+            , 200 //cost multiplier
+            , 5 //max
+            , [] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Orbital Uncertainty' //name
+            , 'Your quantum computers deter users. Risk / 10.' //description
+            , 'material-icons' //icon font family
+            , 'help_outline' //icon font ID
+            , 80e13 //cost
+            , 200 //cost multiplier
+            , 5 //max
+            , [] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Fermi Paradox' //name
+            , 'Your ether networks deter users. Risk / 10.' //description
+            , 'material-icons' //icon font family
+            , 'bubble_chart' //icon font ID
+            , 80e14 //cost
+            , 200 //cost multiplier
+            , 5 //max
+            , [] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Active Hardening' //name
+            , 'Your devices are immune to risk during hacks.' //description
+            , 'material-icons' //icon font family
+            , 'flip' //icon font ID
+            , 320e7 //cost
+            , 1 //cost multiplier
+            , 1 //max
+            , [{type: 'science', name: 'Encryption'}] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Reactive Hardening' //name
+            , 'Your devices are immune to risk after a risk loss; one tick per level.' //description
+            , 'material-icons' //icon font family
+            , 'gradient' //icon font ID
+            , 800e8 //cost
+            , 80 //cost multiplier
+            , 5 //max
+            , [{type: 'science', name: 'Active Hardening'}] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Introvert Subversion' //name
+            , 'All device risk cut in half, per level.' //description
+            , 'material-icons' //icon font family
+            , 'grid_off' //icon font ID
+            , 320e7 //cost
+            , 80 //cost multiplier
+            , 5 //max
+            , [{type: 'science', name: 'Encryption'}] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'For Your Protection' //name
+            , 'Cells, PCs and Workstations have a 2.5% chance to hack an additional tick, each tick, per level.' //description
+            , 'material-icons' //icon font family
+            , 'speaker_phone' //icon font ID
+            , 70e6 //cost
+            , 80 //cost multiplier
+            , 10 //max
+            , [{type: 'science', name: 'Chronic Migraines'}, {type: 'science', name: 'Burnt Pixels'}, {type: 'science', name: 'Flaky Wifi'}] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Getting Personal' //name
+            , 'Cells, PCs and Workstations cost factors reduced by 0.005, per level.' //description
+            , 'material-icons' //icon font family
+            , 'phonelink' //icon font ID
+            , 70e8 //cost
+            , 80 //cost multiplier
+            , 5 //max
+            , [{type: 'science', name: 'For Your Protection'}] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'All Work No Play' //name
+            , 'Database, Academic and Government hacking has a 2.5% chance to hack an additional tick, per level.' //description
+            , 'material-icons' //icon font family
+            , 'weekend' //icon font ID
+            , 70e7 //cost
+            , 80 //cost multiplier
+            , 10 //max
+            , [{type: 'science', name: 'SQL Injection'}, {type: 'science', name: 'Garbage Statistics'}, {type: 'science', name: 'Conspiracy Theories'}] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Public Domain' //name
+            , 'Database, Academic and Government cost factors reduced by 0.005, per level.' //description
+            , 'material-icons' //icon font family
+            , 'public' //icon font ID
+            , 70e9 //cost
+            , 80 //cost multiplier
+            , 5 //max
+            , [{type: 'science', name: 'All Work No Play'}] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Vaporware' //name
+            , 'Nanite, Quantum and Ether networks have a 2.5% chance to hack an additional tick, each tick, per level.' //description
+            , 'material-icons' //icon font family
+            , 'cloud_circle' //icon font ID
+            , 70e8 //cost
+            , 80 //cost multiplier
+            , 10 //max
+            , [{type: 'science', name: 'Out Of Sight'}, {type: 'science', name: 'Orbital Uncertainty'}, {type: 'science', name: 'Fermi Paradox'}] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Imagined Vulnerability' //name
+            , 'Nanite, Quantum and Ether networks cost factors reduced by 0.005, per level.' //description
+            , 'material-icons' //icon font family
+            , 'cloud_done' //icon font ID
+            , 70e10 //cost
+            , 80 //cost multiplier
+            , 5 //max
+            , [{type: 'science', name: 'Vaporware'}] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Codependent Replication' //name
+            , 'Risk loss has a 15% chance of being negated, per level.' //description
+            , 'material-icons' //icon font family
+            , 'devices_other' //icon font ID
+            , 70e9 //cost
+            , 90 //cost multiplier
+            , 5 //max
+            , [{type: 'science', name: 'Introvert Subversion'}] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Form and Function' //name
+            , 'Enables the Work tab, allowing you to consume Data to perform Data Mining.' //description
+            , 'material-icons' //icon font family
+            , 'tune' //icon font ID
+            , 50e5 //cost
+            , 1 //cost multiplier
+            , 1 //max
+            , [] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Stock Manipulation' //name
+            , 'Enables the job, Stock Manipulation, which allows you to convert data into fungible currency.' //description
+            , 'material-icons' //icon font family
+            , 'business' //icon font ID
+            , 30e7 //cost
+            , 1 //cost multiplier
+            , 1 //max
+            , [{type: 'science', name: 'Form and Function'}] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Amazon Trail' //name
+            , 'Enables the Market tab, where you can exchange currency for materials and resources.' //description
+            , 'material-icons' //icon font family
+            , 'shopping_basket' //icon font ID
+            , 50e8 //cost
+            , 1 //cost multiplier
+            , 1 //max
+            , [{type: 'science', name: 'Stock Manipulation'}] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Basic Robotics' //name
+            , 'Enables the Build tab, where you can exchange materials for other resources over time.' //description
+            , 'material-icons' //icon font family
+            , 'build' //icon font ID
+            , 60e7 //cost
+            , 1 //cost multiplier
+            , 1 //max
+            , [{type: 'science', name: 'Amazon Trail'}] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Three Broken Laws' //name
+            , 'Reduces the DPS cost of each active robot by 15% per level.' //description
+            , 'material-icons' //icon font family
+            , 'recent_actors' //icon font ID
+            , 50e9 //cost
+            , 200 //cost multiplier
+            , 5 //max
+            , [{type: 'science', name: 'Basic Robotics'}] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Predictive Algorithms' //name
+            , 'Stock manipulation income is doubled, per level.' //description
+            , 'material-icons' //icon font family
+            , 'find_replace' //icon font ID
+            , 20e8 //cost
+            , 100 //cost multiplier
+            , 5 //max
+            , [{type: 'science', name: 'Stock Manipulation'}] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Cellular Reproduction' //name
+            , 'Enables passive cell hacking.' //description
+            , 'material-icons' //icon font family
+            , 'camera_front' //icon font ID
+            , 20e6 //cost
+            , 1 //cost multiplier
+            , 1 //max
+            , [{type: 'science', name: 'Form and Function'}] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Personal Lives' //name
+            , 'Enables passive PC hacking.' //description
+            , 'material-icons' //icon font family
+            , 'fingerprint' //icon font ID
+            , 20e7 //cost
+            , 1 //cost multiplier
+            , 1 //max
+            , [{type: 'science', name: 'Form and Function'}] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Consummate Professional' //name
+            , 'Enables passive workstation hacking.' //description
+            , 'material-icons' //icon font family
+            , 'supervisor_account' //icon font ID
+            , 20e8 //cost
+            , 1 //cost multiplier
+            , 1 //max
+            , [{type: 'science', name: 'Form and Function'}] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Agent Jobs' //name
+            , 'Enables passive database hacking.' //description
+            , 'material-icons' //icon font family
+            , 'alarm_add' //icon font ID
+            , 20e9 //cost
+            , 1 //cost multiplier
+            , 1 //max
+            , [{type: 'science', name: 'Form and Function'}] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Generational Alumni' //name
+            , 'Enables passive academic hacking.' //description
+            , 'material-icons' //icon font family
+            , 'school' //icon font ID
+            , 20e10 //cost
+            , 1 //cost multiplier
+            , 1 //max
+            , [{type: 'science', name: 'Form and Function'}] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Spook Spooks' //name
+            , 'Enables passive academic hacking.' //description
+            , 'material-icons' //icon font family
+            , 'assignment_late' //icon font ID
+            , 20e11 //cost
+            , 1 //cost multiplier
+            , 1 //max
+            , [{type: 'science', name: 'Form and Function'}] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Little Friends' //name
+            , 'Enables passive nanocomputer hacking.' //description
+            , 'material-icons' //icon font family
+            , 'bug_report' //icon font ID
+            , 20e12 //cost
+            , 1 //cost multiplier
+            , 1 //max
+            , [{type: 'science', name: 'Form and Function'}] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Different QED' //name
+            , 'Enables passive quantum computer hacking.' //description
+            , 'material-icons' //icon font family
+            , 'gesture' //icon font ID
+            , 20e13 //cost
+            , 1 //cost multiplier
+            , 1 //max
+            , [{type: 'science', name: 'Form and Function'}] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Lift the Veil' //name
+            , 'Enables passive ether network hacking.' //description
+            , 'material-icons' //icon font family
+            , 'bookmark' //icon font ID
+            , 20e14 //cost
+            , 1 //cost multiplier
+            , 1 //max
+            , [{type: 'science', name: 'Form and Function'}] //requirements
+        );
+
+        $scope.scienceItems.add(
+            'Passive Aggression' //name
+            , 'Reduce the penalty of passive hacking by 10% per level.' //description
+            , 'material-icons' //icon font family
+            , 'filter_list' //icon font ID
+            , 20e11 //cost
+            , 20 //cost multiplier
+            , 10 //max
+            , [{type: 'science', name: 'Lift the Veil'}] //requirements
+        );
+
+        // CREATE DEVICE TEMPLATE FOR THE GAME //
+
+        $scope.deviceItems = [];
+
+        //declares a push method for the device meta. As above with upgrades/requirements, this probably wasn't necessary, but it works.
+        $scope.deviceItems.add = function (name, description, icon, iconFontID, cpuBase, storage, dataCostIncrement, riskIncrement, dataCostBase) {
+            $scope.deviceItems.push({
+                name: name //friendly name of the device hack 'tier'
+                , description: description //description of the device
+                , icon: icon //font family name
+                , iconFontID: iconFontID //font family icon, sometimes it only takes a single class name to get the job done so it can be potentially unused.
+                , cpuBase: cpuBase //this is how much cpu a single unit generates per tick.
+                , storage: storage //this is how much the device can store. This gets used more later.
+                , dataCostIncrement: dataCostIncrement //each level costs [x][previous cost], where x is the increment. Starts out at 1 x dataCostBase
+                , dataCostBase: dataCostBase //the initial cost to aquire a single mobile device.
+                , riskIncrement: riskIncrement //same as above but for risk. you can see that risk grows faster than cpu for this device.
+                , unlocked: false //tells the browser to hide the item and prevents you from buying it.
+                , hacking: 0 //tells the browser to disable the button when true. you can only hack a single device per tick.
+                , count: 0 //how many of a device you have hacked. This determines cost and other things.
+                , offsetCount: 0 //this is a count you get without factoring into costs, among other things.
+                , immunity: 0 //the number of ticks of immunity you have for a device.
+            });
+            $scope.generateUpgradeTemplateForDevice($scope.getDevice(name));
+        };
 
         //devices, how much they cost, descriptions, template stuff.
         //when a device has requirements, the requirements template gets cleared() and then I inject the requirements into it, prior to
         //creating that object as a property inside the device's meta, which effectively clones it. I reuse the requirementTemplate repeatedly.
         //the upgrade template method is similar, it creates the same upgrade template for each item, but it does it by ID so we can track them separately.
-        requirementTemplate.clear();
-        $scope.deviceMeta.inject(0, 'Mobile', 'Portability and proximity to users makes mobile devices risky to hold.', 'material-icons', 'smartphone', 1, 1, 2e2, 1.07, 1.09, 2, {});
-        $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(0));
 
-        requirementTemplate.clear();
-        $scope.deviceMeta.inject(1, 'Personal', 'Private computer access has improved risk factor over mobile devices.', 'material-icons', 'laptop', 20, 3, 4e3, 1.075, 1.09, 120, {});
-        $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(1));
+        $scope.deviceItems.add(
+            'Mobile' //name
+            , 'A portable computer.' //description
+            , 'material-icons' //font family
+            , 'smartphone' //font icon if applicable
+            , 1 //data per tick
+            , 50 //storage
+            , 1.075 //data cost increment
+            , 1.09 //risk increment
+            , 40 //data cost base
+        );
 
-        requirementTemplate.clear();
-        $scope.deviceMeta.inject(2, 'Workstation', 'Designed for multitasking. Exploited stacks are safe and very powerful.', 'fa fa-server', '', 4e2, 6, 8e4, 1.08, 1.09, 7200, {});
-        $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(2));
+        $scope.deviceItems.add(
+            'Personal' //name
+            , 'Made for private use.' //description
+            , 'material-icons' //font family
+            , 'laptop' //font icon if applicable
+            , 8 //data per tick
+            , 800 //storage
+            , 1.0775 //data cost increment
+            , 1.0925 //risk increment
+            , 400 //data cost base
+        );
 
-        requirementTemplate.clear();
-        $scope.deviceMeta.inject(3, 'Database', 'A database built for moving large amounts of information, very fast.', 'fa fa-database', '', 8e3, 10, 16e5, 1.085, 1.08, 432e3, requirementTemplate.items);
-        $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(3));
+        $scope.deviceItems.add(
+            'Workstation' //name
+            , 'Made for work.' //description
+            , 'fa fa-server' //font family
+            , '' //font icon if applicable
+            , 64 //data per tick
+            , 9600 //storage
+            , 1.08 //data cost increment
+            , 1.095 //risk increment
+            , 4000 //data cost base
+        );
 
-        requirementTemplate.clear();
-        $scope.deviceMeta.inject(4, 'Academic Server', 'An extremely powerful server designed to do statistical analysis.', 'fa fa-university', '', 16e4, 15, 32e6, 1.09, 1.08, 2592e4, requirementTemplate.items);
-        $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(4));
+        $scope.deviceItems.add(
+            'Database' //name
+            , 'Made for moving data.' //description
+            , 'fa fa-database' //font family
+            , '' //font icon if applicable
+            , 512 //data per tick
+            , 102400 //storage
+            , 1.0825 //data cost increment
+            , 1.0975 //risk increment
+            , 4e4 //data cost base
+        );
 
-        requirementTemplate.clear();
-        $scope.deviceMeta.inject(5, 'Government Server', 'A government supercomputer that puts common computing to shame.', 'fa fa-gavel', '', 32e5, 21, 64e7, 1.095, 1.08, 15552e5, requirementTemplate.items);
-        $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(5));
+        $scope.deviceItems.add(
+            'Academic' //name
+            , 'Powerful enough for statistical analysis.' //description
+            , 'fa fa-university' //font family
+            , '' //font icon if applicable
+            , 4096 //data per tick
+            , 1024000 //storage
+            , 1.085 //data cost increment
+            , 1.1 //risk increment
+            , 4e5 //data cost base
+        );
 
-        requirementTemplate.clear();
-        $scope.deviceMeta.inject(6, 'Nanocomputer', 'A privately developed nanoscopic machine with incredible processing power.', 'fa fa-microchip', '', 64e6, 28, 128e8, 1.1, 1.07, 93312e6, requirementTemplate.items);
-        $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(6));
+        $scope.deviceItems.add(
+            'Government' //name
+            , 'Made for monitoring and storage.' //description
+            , 'fa fa-gavel' //font family
+            , '' //font icon if applicable
+            , 32768 //data per tick
+            , 9830400 //storage
+            , 1.0875 //data cost increment
+            , 1.1025 //risk increment
+            , 4e6 //data cost base
+        );
 
-        requirementTemplate.clear();
-        requirementTemplate.inject(requirementTemplate.items.length, 'science', 3, 1);
-        $scope.deviceMeta.inject(7, 'Quantum Computer', 'A world-collaborative physical marvel, capable of moving vast amounts of data.', 'fa fa-ravelry', '', 128e7, 36, 256e9, 1.105, 1.07, 559872e7, requirementTemplate.items);
-        $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(7));
+        $scope.deviceItems.add(
+            'Nanite' //name
+            , 'Made for confined designs.' //description
+            , 'fa fa-microchip' //font family
+            , '' //font icon if applicable
+            , 262144 //data per tick
+            , 91750400 //storage
+            , 1.09 //data cost increment
+            , 1.105 //risk increment
+            , 4e7 //data cost base
+        );
 
-        requirementTemplate.clear();
-        requirementTemplate.inject(requirementTemplate.items.length, 'science', 5, 1);
-        $scope.deviceMeta.inject(8, 'Ether Network', 'An alien device network which generates vast computing power but cannot store data. Highly improbable.', 'fa fa-eercast', '', 256e8, 45, 0, 1.11, 1.07, 10e12, requirementTemplate.items);
-        $scope.generateUpgradeTemplateForDevice($scope.getDeviceMeta(8));
+        $scope.deviceItems.add(
+            'Quantum' //name
+            , 'Made for distant communication.' //description
+            , 'fa fa-ravelry' //font family
+            , '' //font icon if applicable
+            , 2097152 //data per tick
+            , 838860800 //storage
+            , 1.0925 //data cost increment
+            , 1.1075 //risk increment
+            , 4e8 //data cost base
+        );
+
+        $scope.deviceItems.add(
+            'Ether' //name
+            , 'Made for who knows what.' //description
+            , 'fa fa-eercast' //font family
+            , '' //font icon if applicable
+            , 16777216 //data per tick
+            , 7549747200 //storage
+            , 1.095 //data cost increment
+            , 1.11 //risk increment
+            , 4e9 //data cost base
+        );
 
         //lazy versioning. I tried to write a comprehensive subroutine for updating saves, but it backfired and was bad.
         //I'd like to try again but it's hard to simplify it (for me) because the logic starts getting hairy down in the templates.
@@ -278,12 +784,12 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             forceReset = true;
         }
 
-        if ($localStorage.deviceMeta !== undefined && !forceReset) {
+        if ($localStorage.deviceItems !== undefined && !forceReset) {
             $scope.buyMode = $localStorage.buyMode; //buymode is how many devices you're trying to buy at once.1,10,100,0[max] in that order. Defaults to 1.
             $scope.data = $localStorage.data; //your player data, this is your primary resource at the beginning.
             $scope.population = $localStorage.population; //a bit nebulous: more people means it's easier to hide, less people means higher risk.
-            $scope.deviceMeta = $localStorage.deviceMeta;
-            $scope.scienceMeta = $localStorage.scienceMeta;
+            $scope.deviceItems = $localStorage.deviceItems;
+            $scope.scienceItems = $localStorage.scienceItems;
             $scope.workMeta = $localStorage.workMeta;
             $scope.buyMode = $localStorage.buyMode;
             $scope.version = $localStorage.version;
@@ -295,8 +801,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             $scope.refactoredStorage = 0;
         }
         $scope.resetGameInterval();
-        $scope.displayStorageActive = 0;
-        //here's the very last minute, where we check to see if our timestamps don't line up. we do something cool if they don't.
+        //here's the very last minute, where we check to see if our timestamps don't line up.
         now = new Date().valueOf();
 
         if (now > $localStorage.lastSaved) {
@@ -307,11 +812,59 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         $scope.save();//forces a wipe to save over old file.
     };
 
+    $scope.getDeviceRisk = function (device) {
+        var riskTotal = 0;
+        for (var i = 0; i < device.count; i += 1) {
+            var riskCoeff = Math.pow(device.riskIncrement, i);
+            riskTotal += $scope.getScienceBasedRiskReduction(device) * riskCoeff;
+        }
+        //encryption per device
+        if (device.upgrades[2].count > 0) {
+            riskTotal *= Math.pow(0.5, device.upgrades[2].count);
+        }
+        return riskTotal;
+    };
+
+    $scope.getChanceOfDiscovery = function (device) {
+        return 1e21 / ($scope.population * $scope.getDeviceRisk(device));
+    };
+
+    $scope.processRisk = function () {
+        for (var i = 0; i < $scope.deviceItems.length; i += 1) {
+            var deviceMeta = $scope.deviceItems[i];
+            if (deviceMeta.count > 0 && $scope.getDeviceRisk(deviceMeta) > 0 && deviceMeta.immunity === 0) {
+                if (Math.random() < 1 / $scope.getChanceOfDiscovery(deviceMeta)) {
+                    //here we apply the % chance of risk negation provided by codependent replication
+                    var codependentReplication = $scope.scienceItems[28].count;
+                    if (Math.random() > codependentReplication * .15) {
+                        $scope.removeDevice(deviceMeta);
+                        //here we apply the science passive hardening, which makes you immune for a number of ticks after losing a device
+                        if (deviceMeta.immunity === 0 && $scope.scienceItems[20].count > 0) {
+                            deviceMeta.immunity = $scope.scienceItems[20].count;
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    $scope.getDeviceRiskForDisplay = function (device) {
+        if ($scope.getDeviceRisk(device) === 0) {
+            return 0;
+        }
+        var riskAgainst;
+        riskAgainst = $scope.getChanceOfDiscovery(device);
+        if (riskAgainst < 1) {
+            riskAgainst = 1;
+        }
+        return riskAgainst;
+    };
+
     $scope.save = function () {
-        $localStorage.deviceMeta = $scope.deviceMeta;
-        $localStorage.refactoredStorage = $scope.refactoredStorage;
+        $localStorage.deviceItems = $scope.deviceItems;
+        $localStorage.scienceItems = $scope.scienceItems;
         $localStorage.workMeta = $scope.workMeta;
-        $localStorage.scienceMeta = $scope.scienceMeta;
+        $localStorage.refactoredStorage = $scope.refactoredStorage;
         $localStorage.data = $scope.data;
         $localStorage.buyMode = $scope.buyMode;
         $localStorage.population = $scope.population;
@@ -323,9 +876,8 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
     $scope.load(false);
 
     $scope.hasDevice = function () {
-        var i;
-        for (i = 0; i < $scope.deviceMeta.items.length; i += 1) {
-            if ($scope.deviceMeta.items[i].count > 0) {
+        for (var i = 0; i < $scope.deviceItems.length; i += 1) {
+            if ($scope.deviceItems[i].count > 0) {
                 return true;
             }
         }
@@ -340,7 +892,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
     };
 
     $scope.getScienceCost = function (science) {
-        return science.cpuCostBase * Math.pow(science.cpuCostIncrement, science.count);
+        return science.dataCostBase * Math.pow(science.dataCostIncrement, science.count);
     };
 
     $scope.buyScience = function (science) {
@@ -349,36 +901,28 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         }
         $scope.data -= $scope.getScienceCost(science);
         science.count += 1;
-        if (science.id === 4) {
-            //special case here for "Time Dilation" - it speeds up time.
-            $scope.resetGameInterval();
-        }
+        if (science.name === 'Time Dilation') { $scope.resetGameInterval(); } //special case here for "Time Dilation" - it speeds up time so the interval has to be reset
         $scope.save();
     };
 
-    $scope.canBuyScience = function (science) {
-        return $scope.data >= $scope.getScienceCost(science) && science.count < science.max;
-    };
+    $scope.canBuyScience = function (science) { return $scope.data >= $scope.getScienceCost(science) && science.count < science.max && $scope.requirementsMet(science.requirement);};
 
+    //returns if you should see the science item in question. Science items unlock permanently at 20% of their cost.
     $scope.shouldSeeScience = function (science) {
-        return $scope.getScienceCost(science) <= $scope.data * 5;
+        if (science.unlocked) {
+            return true;
+        } else {
+            if ($scope.getScienceCost(science) <= $scope.data * 5 && $scope.requirementsMet(science.requirement)) {
+                science.unlocked = true;
+                return true;
+            }
+        }
     };
 
-    $scope.getSuppressionCPUFactor = function (device) {
-        //stub, placeholder for what will eventually be the suppression ability formula, which will let you reduce your risk by more than it reduces your CPU.
-        //the base formula is going to be a slider from 0 to 100% that cuts CPU in half but cuts RISK by 75% for x% of a given device.
-        //all this formula concerns itself with is CPU. This is probably gonna change later, a lot.
-        var suppCoeff = (device.suppressed / 2) + (1 - device.suppressed);
-        return suppCoeff;
-    };
+    $scope.setTab = function (tabName) { $scope.selectedTab = tabName; };
 
-    $scope.setTab = function (tabName) {
-        $scope.selectedTab = tabName;
-    };
-
-    $scope.hackDevice = function (deviceID, count) {
-        var deviceMeta = $scope.getDeviceMeta(deviceID);
-        deviceMeta.count += count;
+    $scope.hackDevice = function (device, count) {
+        device.hacking = count;
         $scope.save();
     };
 
@@ -386,9 +930,8 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         if ($scope.permanentlyUnlockScience) {
             return true;
         }
-        var i, sciObj;
-        for (i = 0; i < $scope.scienceMeta.items.length; i += 1) {
-            sciObj = $scope.scienceMeta.items[i];
+        for (var i = 0; i < $scope.scienceItems.length; i += 1) {
+            var sciObj = $scope.scienceItems[i];
             if (sciObj.count > 0 || $scope.shouldSeeScience(sciObj)) {
                 $scope.permanentlyUnlockScience = true;
                 return true;
@@ -397,10 +940,9 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         return false;
     };
 
-    $scope.scienceReallyAvailableToBuy = function () {
-        var i, sciObj;
-        for (i = 0; i < $scope.scienceMeta.items.length; i += 1) {
-            sciObj = $scope.scienceMeta.items[i];
+    $scope.shouldHighlightScienceTab = function () {
+        for (var i = 0; i < $scope.scienceItems.length; i += 1) {
+            var sciObj = $scope.scienceItems[i];
             if ($scope.canBuyScience(sciObj)) {
                 return true;
             }
@@ -408,226 +950,178 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         return false;
     };
 
-    $scope.hasScience = function (science) {
-        return science.count > 0;
+    $scope.hasWorkScience = function () {
+        return $scope.getScience('Form and Function').count > 0; //Form and function
     };
 
-    $scope.isScienceMaxed = function (science) {
-        return science.count === science.max;
+    $scope.dataMiningSlider = {
+        value: 20
     };
 
-    $scope.workAvailable = function () {
-        return false;//stub
-    };
-
-    $scope.removeDevice = function (deviceID) {
-        var deviceMeta = $scope.getDeviceMeta(deviceID);
-        deviceMeta.count -= 1;
+    $scope.removeDevice = function (device) {
+        device.count -= 1;
         $scope.save();
     };
 
-    $scope.getDeviceSpecificRiskReduction = function (device) {
-        var scienceMeta;
-        switch (device.id) {
-        case 0://mobile devices
-            scienceMeta = $scope.scienceMeta.items[9];//chronic migraines
+    $scope.getScienceBasedRiskReduction = function (device) {
+        var multiplier = 1;
+        switch (device.name) {
+        case 'Mobile':
+            multiplier *= Math.pow(0.1, $scope.getScience('Chronic Migraines').count);
             break;
-        case 1://personal computers
-            scienceMeta = $scope.scienceMeta.items[10];//burnt pixels
+        case 'Personal':
+            multiplier *= Math.pow(0.1, $scope.getScience('Burnt Pixels').count);
+            break;
+        case 'Workstation':
+            multiplier *= Math.pow(0.1, $scope.getScience('Flaky Wifi').count);
+            break;
+        case 'Database':
+            multiplier *= Math.pow(0.1, $scope.getScience('SQL Injection').count);
+            break;
+        case 'Academic':
+            multiplier *= Math.pow(0.1, $scope.getScience('Garbage Statistics').count);
+            break;
+        case 'Government':
+            multiplier *= Math.pow(0.1, $scope.getScience('Conspiracy Theories').count);
+            break;
+        case 'Nanite':
+            multiplier *= Math.pow(0.1, $scope.getScience('Out of Sight').count);
+            break;
+        case 'Quantum':
+            multiplier *= Math.pow(0.1, $scope.getScience('Orbital Uncertainty').count);
+            break;
+        case 'Ether':
+            multiplier *= Math.pow(0.1, $scope.getScience('Fermi Paradox').count);
             break;
         }
-        if (scienceMeta === null || typeof scienceMeta === 'undefined') {
-            return 1;
-        }
-        if (scienceMeta.count > 0) {
-            return 0.01;
-        }
-        return 1;
+        multiplier *= Math.pow(0.01, $scope.getScience('Improbability Generator').count);
+        multiplier *= Math.pow(0.5, $scope.getScience('Introvert Subversion').count);
+        return multiplier;
     };
 
-    $scope.getDeviceRisk = function (device) {
-        var i, deviceMeta = $scope.getDeviceMeta(device.id), riskTotal = 0, riskCoeff;
-        for (i = 0; i < device.count; i += 1) {
-            riskCoeff = Math.pow(deviceMeta.riskIncrement, i);
-            riskTotal += deviceMeta.riskBase * $scope.getDeviceSpecificRiskReduction(device) * riskCoeff;
+    $scope.getQuantumTotalLevelForDevice = function (device) {
+        var index = device.id, quantumLevel = 0;
+        for (var i = 8; i > index; i -= 1) {
+            var deviceMeta = $scope.deviceItems[i];
+            quantumLevel += device.upgrades[3].count; //3 is quantum
         }
-        if (deviceMeta.riskLevel > 0 || deviceMeta.quantumLevel > 0) {
-            riskTotal *= Math.pow(0.5, deviceMeta.riskLevel + (deviceMeta.quantumLevel / 2));
-        }
-        return riskTotal;
+        return quantumLevel;
     };
 
-    $scope.getDeviceRiskForDisplay = function (device) {
-        if ($scope.getDeviceRisk(device) === 0) {
-            return 0;
-        }
-        var riskAgainst;
-        riskAgainst = $scope.population / $scope.getDeviceRisk(device);
-        if (riskAgainst < 1) {
-            riskAgainst = 1;
-        }
-        return riskAgainst;
-    };
-
-    $scope.getTicksPerSecond = function () {
-        //stub, placeholder value right now is gonna default to 5 (200ms interval) until I can do shmancy shit with upgrades or whatever
-        return Math.pow(2, $scope.getScienceMeta(4).count);
-    };
-
-    $scope.getCPUGenerated = function (deviceID) {
-        var deviceMeta, device;
-        deviceMeta = $scope.getDeviceMeta(deviceID);
-        device = $scope.getDeviceMeta(deviceID);
-        return ((device.count + device.offsetCount) * deviceMeta.cpuBase) * $scope.getDeviceCPUFactor(device);
-    };
-
-    $scope.getDeviceCPUFactor = function (device) {
-        return $scope.getSuppressionCPUFactor(device) * $scope.getDeviceNetworkFactor(device) * $scope.getDeviceQuantumFactor(device) * $scope.getDeviceCompressionFactor(device);
+    $scope.getDataGeneratedPerTick = function (device) {
+        var multiplier;
+        multiplier = Math.pow(2, Math.floor((device.count + device.offsetCount) / 25))
+        return multiplier * ((device.count + device.offsetCount) * device.cpuBase) * $scope.getDeviceOptimizationFactor(device) * $scope.getDeviceQuantumFactor(device);
     };
 
     $scope.getDeviceClusteringFactor = function (device) {
-        var scienceMeta = $scope.getScienceMeta(6);//clustering, if you have it, it's a permanent bonus to all devices.
-        return Math.pow(1.01, device.count * scienceMeta.count);
+        var scienceMeta = $scope.scienceItems[6];//advanced clustering, if you have it, it's a permanent bonus to all devices.
+        return 1 + ((.0002 * scienceMeta.count) * device.count);
     };
 
-    $scope.getDeviceNetworkFactor = function (device) {
-        return (Math.pow(0.995, device.count) + (device.networkLevel / 10)) * $scope.getDeviceClusteringFactor(device);
+    $scope.getDeviceOptimizationFactor = function (device) {
+        return Math.pow(2, device.upgrades[1].count) * $scope.getDeviceClusteringFactor(device);
     };
 
     $scope.getDeviceQuantumFactor = function (device) {
-        var i, quantumLevel = 0;
-        for (i = 0; i < $scope.deviceMeta.items.length; i += 1) {
-            if ($scope.deviceMeta.items[i].id <= device.id) {
-                quantumLevel += device.quantumLevel;
-            }
-        }
-        return Math.pow(1.02, quantumLevel);
-    };
-
-    $scope.getDeviceCompressionFactor = function (device) {
-        return $scope.getCompressionFactor(device.compressionLevel);
+        return 1 + (0.1 * $scope.getQuantumTotalLevelForDevice(device));
     };
 
     $scope.getDeviceCompressionFactorForStorage = function (device) {
-        return $scope.getCompressionFactorForStorage(device.compressionLevel);
-    };
-
-    $scope.getCompressionFactor = function (compressionLevel) {
-        return Math.pow(2, compressionLevel);
+        return $scope.getCompressionFactorForStorage(device.upgrades[0].count);
     };
 
     $scope.getCompressionFactorForStorage = function (compressionLevel) {
-        return Math.pow(1.5, compressionLevel);
+        return Math.pow(4, compressionLevel);
     };
 
     $scope.getDeviceRedundancyFactor = function (device) {
-        var scienceMeta = $scope.getScienceMeta(7); //redundancy
+        var scienceMeta = $scope.scienceItems[7]; //redundancy
         return 1 + (0.1 * device.count * scienceMeta.count);
     };
 
     $scope.installClick = function () {
-        //doesn't assume you don't have a phone - evolution abilities may later support advanced placement starts.
-        if ($scope.population <= 0) {
-            $scope.population = 1;
-        }
-        $scope.hackDevice(0, 1);
+        $scope.deviceItems[0].unlocked = true;
+        $scope.hackDevice($scope.deviceItems[0], 1); //hack 1 cell phone
     };
 
     $scope.processStorage = function () {
-        var i, deviceMeta, refactoringGrowth = 0, scienceMeta = $scope.getScienceMeta(8); //active refactoring
-        //active refactoring
-        refactoringGrowth = $scope.getTickCPU() * (0.01 * scienceMeta.count);
+        var refactoringGrowth = 0
+            , activeRefactoring = $scope.scienceItems[8]//active refactoring
+            , passiveCompression = $scope.scienceItems[11]; //passive compression
+        if ($scope.data === $scope.getDeviceStorageMax()) {
+            refactoringGrowth += $scope.getTickCPU() * 0.002 * passiveCompression.count
+        } else {
+            refactoringGrowth = $scope.getTickCPU() * 0.01 * activeRefactoring.count;
+        }
         $scope.refactoredStorage += refactoringGrowth;
-        $scope.displayStorageActive = $scope.data * 100.0 / $scope.getDeviceStorageMax();
-        for (i = 0; i < $scope.deviceMeta.items.length; i += 1) {
-            deviceMeta = $scope.deviceMeta.items[i];
-            //storagePartitions.push($scope.deviceMeta)
+    };
+
+    $scope.processHacks = function () {
+        for (var i = 0; i < $scope.deviceItems.length; i += 1) {
+            var device = $scope.deviceItems[i];
+            if (device.hacking > 0) {
+                //active hardening, immunity to risk during a hack
+                if ($scope.scienceItems[19].count > 0 && device.immunity === 0) {
+                    device.immunity = 1
+                }
+                //here we process the 3 sciences which enable you to "crit" hack. Each device hacking tick has a chance to extend the hack by 1 tick.
+                if (device.id < 4) {
+                    //tier 1-3
+                    //for your protection
+                    var forYourProtection = $scope.scienceItems[22].count;
+                    if (Math.random() < 0.025 * forYourProtection) {
+                        device.hacking += 1;
+                    }
+                } else if (device.id < 7) {
+                    //tier 4-6
+                    //all work and no play
+                    var allWorkNoPlay = $scope.scienceItems[24].count;
+                    if (Math.random() < 0.025 * allWorkNoPlay) {
+                        device.hacking += 1;
+                    }
+                } else if (device.id < 9) {
+                    //tier 7-9
+                    var vaporware = $scope.scienceItems[26].count;
+                    if (Math.random() < 0.025 * vaporware) {
+                        device.hacking += 1;
+                    }
+                }
+                device.count += 1;
+                device.hacking -= 1;
+            }
         }
     };
 
     $scope.gameTick = function () {
+        $scope.processHacks();
         $scope.processStorage();
         $scope.processRisk();
         //here's where magic happens, such as data being incremented.
         $scope.data = Math.min($scope.getDeviceStorageMax(), $scope.data + $scope.getTickCPU());
-        $scope.processUnlocks();
     };
 
-    $scope.processUnlocks = function () {
-        var i, deviceMeta, scienceMeta;
-        for (i = 0; i < $scope.deviceMeta.items.length; i += 1) {
-            deviceMeta = $scope.deviceMeta.items[i];
-            if (!deviceMeta.unlocked) {
-                if (deviceMeta.cpuCostBase <= $scope.data * 5) {
-                    deviceMeta.unlocked = true;
-                }
-            }
-        }
-        for (i = 0; i < $scope.scienceMeta.items.length; i += 1) {
-            scienceMeta = $scope.scienceMeta.items[i];
-            if (!scienceMeta.unlocked) {
-                if (scienceMeta.cpuCostBase <= $scope.data * 5) {
-                    scienceMeta.unlocked = true;
-                }
-            }
-        }
-    };
+    $scope.getDeviceStorageBonus = function (device) {
+        return $scope.getDeviceCompressionFactorForStorage(device) * $scope.getDeviceRedundancyFactor(device) * $scope.getDeviceQuantumFactor(device);
+    }
 
-    $scope.getDeviceSpecificStorageBonus = function (device) {
-        var scienceMeta;
-        switch (device.id) {
-        case 0://mobile devices
-            scienceMeta = $scope.getScienceMeta(9);//chronic migraines
-            break;
-        case 1://personal computers
-            scienceMeta = $scope.getScienceMeta(10);//burnt pixels
-            break;
-        }
-        if (scienceMeta === null || typeof scienceMeta === 'undefined') {
-            return 1;
-        }
-        if (scienceMeta.count > 0) {
-            return 100;
-        }
-        return 1;
-    };
-
-    $scope.getDeviceStorageMax = function (deviceID) {
-        var i, deviceMeta, storageTotal;
-        storageTotal = 0;
-        for (i = 0; i < $scope.deviceMeta.items.length; i += 1) {
-            deviceMeta = $scope.deviceMeta.items[i];
-            if (deviceID !== null) {
-                if (deviceMeta.id === deviceID) {
-                    return (deviceMeta.count + deviceMeta.offsetCount) * deviceMeta.storage * $scope.getDeviceCompressionFactorForStorage(deviceMeta) * $scope.getDeviceRedundancyFactor(deviceMeta) * $scope.getDeviceSpecificStorageBonus(deviceMeta);
-                }
+    $scope.getDeviceStorageMax = function (device) {
+        var storageTotal = 0;
+        if (typeof device === 'undefined' || device === null) {
+            for (var i = 0; i < $scope.deviceItems.length; i += 1) {
+                var device = $scope.deviceItems[i];
+                storageTotal += (device.count + device.offsetCount) * device.storage * $scope.getDeviceStorageBonus(device);
             }
-
-            storageTotal += (deviceMeta.count + deviceMeta.offsetCount) * deviceMeta.storage * $scope.getDeviceCompressionFactorForStorage(deviceMeta) * $scope.getDeviceRedundancyFactor(deviceMeta) * $scope.getDeviceSpecificStorageBonus(deviceMeta);
+        } else {
+            return (device.count + device.offsetCount) * device.storage * $scope.getDeviceStorageBonus(device)
         }
         return storageTotal + $scope.refactoredStorage;
     };
 
-    $scope.processRisk = function () {
-        var i, deviceMeta;
-        for (i = 0; i < $scope.deviceMeta.items.length; i += 1) {
-            deviceMeta = $scope.deviceMeta.items[i];
-            if (deviceMeta.count > 0 && $scope.getDeviceRisk(deviceMeta) > 0) {
-                if (Math.random() < 1.0 / ($scope.population / $scope.getDeviceRisk(deviceMeta))) {
-                    $scope.removeDevice(deviceMeta.id);
-                }
-            }
-            //this sets the scope risk for the object in question
-            deviceMeta.riskPercent = 100.0 / ($scope.population / $scope.getDeviceRisk(deviceMeta));
-        }
-    };
-
     $scope.getTickCPU = function () {
-        var i, cpuFromDevice, cpuTotal;
-        cpuTotal = 0;
-        for (i = 0; i < $scope.deviceMeta.items.length; i += 1) {
-            cpuFromDevice = $scope.getCPUGenerated($scope.deviceMeta.items[i].id);
-            cpuTotal += cpuFromDevice;
+        var cpuFromDevice = 0, cpuTotal = 0;
+        for (var i = 0; i < $scope.deviceItems.length; i += 1) {
+            cpuTotal += $scope.getDataGeneratedPerTick($scope.deviceItems[i]);
         }
         return cpuTotal;
     };
@@ -637,95 +1131,65 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
     };
 
     $scope.requirementsMet = function (requirement) {
-        var i, isMet = true, reqObj;
-        for (i = 0; i < requirement.length; i += 1) {
-            reqObj = requirement[i];
+        for (var i = 0; i < requirement.length; i += 1) {
+            var reqObj = requirement[i];
             switch (reqObj.type) {
             case 'device':
-                if ($scope.getDeviceMeta(reqObj.ref).count < reqObj.value) {
-                    isMet = false;
+                if ($scope.getDevice(reqObj.name).count < 1) {
+                    return false;
                 }
                 break;
             case 'science':
-                if ($scope.getScienceMeta(reqObj.ref).count < reqObj.value) {
-                    isMet = false;
+                if ($scope.getScience(reqObj.name).count < 1) {
+                    return false;
                 }
-                break;
-            default:
-                isMet = false;
                 break;
             }
         }
-        return isMet;
+        return true;
     };
 
     $scope.buyUpgrade = function (upgrade) {
         if (!$scope.canBuyUpgrade(upgrade)) { return; }
         $scope.data -= $scope.getUpgradeCost(upgrade);
-        var deviceMeta = $scope.getDeviceMeta(upgrade.deviceID);
-        switch (upgrade.id) {
-        case 0://compression
-            deviceMeta.compressionLevel += 1;
-            break;
-        case 1://networking
-            deviceMeta.networkLevel += 1;
-            break;
-        case 2://obfuscation
-            deviceMeta.riskLevel += 1;
-            break;
-        case 3://quantum
-            deviceMeta.quantumLevel += 1;
-            break;
-        }
+        upgrade.count += 1;
         $scope.save();
     };
 
-    $scope.getUpgradeCost = function (upgrade) {
-        var deviceMeta = $scope.getDeviceMeta(upgrade.deviceID), cost = 0;
-        switch (upgrade.id) {
-        case 0://compression
-            cost = upgrade.cpuCostBase * Math.pow(upgrade.cpuCostIncrement, deviceMeta.compressionLevel);
-            break;
-        case 1://networking
-            cost = upgrade.cpuCostBase * Math.pow(upgrade.cpuCostIncrement, deviceMeta.networkLevel);
-            break;
-        case 2://obfuscation
-            cost = upgrade.cpuCostBase * Math.pow(upgrade.cpuCostIncrement, deviceMeta.riskLevel);
-            break;
-        case 3://quantum
-            cost = upgrade.cpuCostBase * Math.pow(upgrade.cpuCostIncrement, deviceMeta.quantumLevel);
-            break;
-        }
-        return cost;
-    };
+    $scope.getUpgradeCost = function (upgrade) { return upgrade.dataCostBase * Math.pow(upgrade.dataCostIncrement, upgrade.count); };
 
-    $scope.getUpgradeLevel = function (upgrade) {
-        var deviceMeta = $scope.getDeviceMeta(upgrade.deviceID), count = 0;
-        switch (upgrade.id) {
-        case 0://compression
-            count = deviceMeta.compressionLevel;
-            break;
-        case 1://networking
-            count = deviceMeta.networkLevel;
-            break;
-        case 2://obfuscation
-            count = deviceMeta.riskLevel;
-            break;
-        case 3://quantum
-            count = deviceMeta.quantumLevel;
-            break;
-        }
-        return count;
-    };
+    //returns that you have the data for a device upgrade and also meet the requirements.
+    $scope.canBuyUpgrade = function (upgrade) { return $scope.data >= $scope.getUpgradeCost(upgrade) && $scope.requirementsMet(upgrade.requirement); };
 
-    $scope.canBuyUpgrade = function (upgrade) {
-        return $scope.data >= $scope.getUpgradeCost(upgrade) && $scope.requirementsMet(upgrade.requirement);
-    };
-
+    //returns that you have data for a device
     $scope.canBuyDevice = function (device) {
         var buyPrice = $scope.getDeviceDataCost(device);
-        return $scope.requirementsMet(device.requirement) && $scope.data >= buyPrice && buyPrice > 0;
+        return $scope.data >= buyPrice && buyPrice > 0;
     };
+
+    $scope.shouldShowDevice = function (device) {
+        if (device.unlocked) {
+            return true;
+        } else {
+            if (device.dataCostBase / 5 <= $scope.data) {
+                device.unlocked = true;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.getDeviceCostReduction = function (device) {
+        if (device.id < 4) {
+            //getting personal
+            return $scope.scienceItems[23].count * 0.005;
+        } else if (device.id < 7) {
+            return $scope.scienceItems[25].count * 0.005;
+        } else if (device.id < 10) {
+            return $scope.scienceItems[27].count * 0.005;
+        }
+        return 0;
+    }
 
     $scope.getDeviceBuyCount = function (device) {
         var i, price, count, lastAffordable;
@@ -736,7 +1200,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             i = 0;
             while (price <= $scope.data) {
                 lastAffordable = i;
-                price += device.cpuCostBase * Math.pow(device.cpuCostIncrement, device.count + i);
+                price += device.dataCostBase * Math.pow(device.dataCostIncrement - $scope.getDeviceCostReduction(device), device.count + i);
                 i += 1;
             }
             return lastAffordable;
@@ -755,13 +1219,13 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             i = 0;
             while (price <= $scope.data) {
                 lastAffordable = price;
-                price += device.cpuCostBase * Math.pow(device.cpuCostIncrement, device.count + i);
+                price += device.dataCostBase * Math.pow(device.dataCostIncrement - $scope.getDeviceCostReduction(device), device.count + i);
                 i += 1;
             }
             price = lastAffordable;
         } else {
             for (i = 0; i < count; i += 1) {
-                price += device.cpuCostBase * Math.pow(device.cpuCostIncrement, device.count + i);
+                price += device.dataCostBase * Math.pow(device.dataCostIncrement - $scope.getDeviceCostReduction(device), device.count + i);
             }
         }
         return Math.round(price * 100) / 100;
@@ -822,6 +1286,8 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         case 1:
             return 10;
         case 10:
+            return 25;
+        case 25:
             return 100;
         case 100:
             return 0;
@@ -918,6 +1384,6 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         }
         var count = $scope.getDeviceBuyCount(device);
         $scope.data -= $scope.getDeviceDataCost(device);
-        $scope.hackDevice(device.id, count);
+        $scope.hackDevice(device, count);
     };
 }]);
