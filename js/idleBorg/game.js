@@ -5,7 +5,7 @@
 angular.module('gameApp').controller('GameController', ['$scope', '$location', '$interval', '$route', '$localStorage', '$window', '$http', '$sessionStorage', function ($scope, $location, $interval, $route, $localStorage, $window, $http, $sessionStorage) {
     'use strict';
 
-    $scope.version = "0.0.1.2";
+    $scope.version = "0.0.1.4";
 
     $scope.generateUpgradeTemplateForDevice = function (device) {
         if (device === null) {
@@ -688,8 +688,8 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'laptop' //font icon if applicable
             , 8 //data per tick
             , 800 //storage
-            , 1.07 //data cost increment
-            , 1.0875 //risk increment
+            , 1.0775 //data cost increment
+            , 1.0925 //risk increment
             , 400 //data cost base
         );
 
@@ -700,8 +700,8 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , '' //font icon if applicable
             , 64 //data per tick
             , 9600 //storage
-            , 1.065 //data cost increment
-            , 1.085 //risk increment
+            , 1.08 //data cost increment
+            , 1.095 //risk increment
             , 4000 //data cost base
         );
 
@@ -712,8 +712,8 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , '' //font icon if applicable
             , 512 //data per tick
             , 102400 //storage
-            , 1.06 //data cost increment
-            , 1.0825 //risk increment
+            , 1.0825 //data cost increment
+            , 1.0975 //risk increment
             , 4e4 //data cost base
         );
 
@@ -724,8 +724,8 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , '' //font icon if applicable
             , 4096 //data per tick
             , 1024000 //storage
-            , 1.055 //data cost increment
-            , 1.08 //risk increment
+            , 1.085 //data cost increment
+            , 1.1 //risk increment
             , 4e5 //data cost base
         );
 
@@ -736,8 +736,8 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , '' //font icon if applicable
             , 32768 //data per tick
             , 9830400 //storage
-            , 1.05 //data cost increment
-            , 1.0775 //risk increment
+            , 1.0875 //data cost increment
+            , 1.1025 //risk increment
             , 4e6 //data cost base
         );
 
@@ -748,8 +748,8 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , '' //font icon if applicable
             , 262144 //data per tick
             , 91750400 //storage
-            , 1.1 //data cost increment
-            , 1.045 //risk increment
+            , 1.09 //data cost increment
+            , 1.105 //risk increment
             , 4e7 //data cost base
         );
 
@@ -760,8 +760,8 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , '' //font icon if applicable
             , 2097152 //data per tick
             , 838860800 //storage
-            , 1.04 //data cost increment
-            , 1.0725 //risk increment
+            , 1.0925 //data cost increment
+            , 1.1075 //risk increment
             , 4e8 //data cost base
         );
 
@@ -772,8 +772,8 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , '' //font icon if applicable
             , 16777216 //data per tick
             , 7549747200 //storage
-            , 1.035 //data cost increment
-            , 1.07 //risk increment
+            , 1.095 //data cost increment
+            , 1.11 //risk increment
             , 4e9 //data cost base
         );
 
@@ -810,6 +810,54 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
 
         $localStorage.lastSaved = new Date().valueOf();
         $scope.save();//forces a wipe to save over old file.
+    };
+
+    $scope.getDeviceRisk = function (device) {
+        var riskTotal = 0;
+        for (var i = 0; i < device.count; i += 1) {
+            var riskCoeff = Math.pow(device.riskIncrement, i);
+            riskTotal += $scope.getScienceBasedRiskReduction(device) * riskCoeff;
+        }
+        //encryption per device
+        if (device.upgrades[2].count > 0) {
+            riskTotal *= Math.pow(0.5, device.upgrades[2].count);
+        }
+        return riskTotal;
+    };
+
+    $scope.getChanceOfDiscovery = function (device) {
+        return 1e21 / ($scope.population * $scope.getDeviceRisk(device));
+    };
+
+    $scope.processRisk = function () {
+        for (var i = 0; i < $scope.deviceItems.length; i += 1) {
+            var deviceMeta = $scope.deviceItems[i];
+            if (deviceMeta.count > 0 && $scope.getDeviceRisk(deviceMeta) > 0 && deviceMeta.immunity === 0) {
+                if (Math.random() < 1 / $scope.getChanceOfDiscovery(deviceMeta)) {
+                    //here we apply the % chance of risk negation provided by codependent replication
+                    var codependentReplication = $scope.scienceItems[28].count;
+                    if (Math.random() > codependentReplication * .15) {
+                        $scope.removeDevice(deviceMeta);
+                        //here we apply the science passive hardening, which makes you immune for a number of ticks after losing a device
+                        if (deviceMeta.immunity === 0 && $scope.scienceItems[20].count > 0) {
+                            deviceMeta.immunity = $scope.scienceItems[20].count;
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    $scope.getDeviceRiskForDisplay = function (device) {
+        if ($scope.getDeviceRisk(device) === 0) {
+            return 0;
+        }
+        var riskAgainst;
+        riskAgainst = $scope.getChanceOfDiscovery(device);
+        if (riskAgainst < 1) {
+            riskAgainst = 1;
+        }
+        return riskAgainst;
     };
 
     $scope.save = function () {
@@ -857,8 +905,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
         $scope.save();
     };
 
-    //returns if
-    $scope.canBuyScience = function (science) { return $scope.data >= $scope.getScienceCost(science) && science.count < science.max; };
+    $scope.canBuyScience = function (science) { return $scope.data >= $scope.getScienceCost(science) && science.count < science.max && $scope.requirementsMet(science.requirement);};
 
     //returns if you should see the science item in question. Science items unlock permanently at 20% of their cost.
     $scope.shouldSeeScience = function (science) {
@@ -959,31 +1006,6 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             quantumLevel += device.upgrades[3].count; //3 is quantum
         }
         return quantumLevel;
-    };
-
-    $scope.getDeviceRisk = function (device) {
-        var riskTotal = 0;
-        for (var i = 0; i < device.count; i += 1) {
-            var riskCoeff = Math.pow(device.riskIncrement, i);
-            riskTotal += $scope.getScienceBasedRiskReduction(device) * riskCoeff;
-        }
-        //encryption per device
-        if (device.upgrades[2].count > 0) {
-            riskTotal *= Math.pow(0.5, device.upgrades[2].count);
-        }
-        return riskTotal;
-    };
-
-    $scope.getDeviceRiskForDisplay = function (device) {
-        if ($scope.getDeviceRisk(device) === 0) {
-            return 0;
-        }
-        var riskAgainst;
-        riskAgainst = 1 / ($scope.getDeviceRisk(device) / $scope.population);
-        if (riskAgainst < 1) {
-            riskAgainst = 1;
-        }
-        return riskAgainst;
     };
 
     $scope.getDataGeneratedPerTick = function (device) {
@@ -1094,25 +1116,6 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             return (device.count + device.offsetCount) * device.storage * $scope.getDeviceStorageBonus(device)
         }
         return storageTotal + $scope.refactoredStorage;
-    };
-
-    $scope.processRisk = function () {
-        for (var i = 0; i < $scope.deviceItems.length; i += 1) {
-            var deviceMeta = $scope.deviceItems[i];
-            if (deviceMeta.count > 0 && $scope.getDeviceRisk(deviceMeta) > 0 && deviceMeta.immunity === 0) {
-                if (Math.random() < $scope.getDeviceRisk(deviceMeta) / $scope.population) {
-                    //here we apply the % chance of risk negation provided by codependent replication
-                    var codependentReplication = $scope.scienceItems[28].count;
-                    if (Math.random() > codependentReplication * .15) {
-                        $scope.removeDevice(deviceMeta);
-                        //here we apply the science passive hardening, which makes you immune for a number of ticks after losing a device
-                        if (deviceMeta.immunity === 0 && $scope.scienceItems[20].count > 0) {
-                            deviceMeta.immunity = $scope.scienceItems[20].count;
-                        }
-                    }
-                }
-            }
-        }
     };
 
     $scope.getTickCPU = function () {

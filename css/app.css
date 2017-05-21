@@ -231,7 +231,6 @@ tip-tip:hover {
     position: absolute;
     left: 20px;
     display: flex;
-    z-index: 999 !important;
 }
 
 .btn-upgrade-wrapper {
