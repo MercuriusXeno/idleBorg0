@@ -688,8 +688,8 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , 'laptop' //font icon if applicable
             , 8 //data per tick
             , 800 //storage
-            , 1.0775 //data cost increment
-            , 1.0925 //risk increment
+            , 1.075 //data cost increment
+            , 1.1 //risk increment
             , 400 //data cost base
         );
 
@@ -700,8 +700,8 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , '' //font icon if applicable
             , 64 //data per tick
             , 9600 //storage
-            , 1.08 //data cost increment
-            , 1.095 //risk increment
+            , 1.075 //data cost increment
+            , 1.11 //risk increment
             , 4000 //data cost base
         );
 
@@ -712,8 +712,8 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , '' //font icon if applicable
             , 512 //data per tick
             , 102400 //storage
-            , 1.0825 //data cost increment
-            , 1.0975 //risk increment
+            , 1.075 //data cost increment
+            , 1.12 //risk increment
             , 4e4 //data cost base
         );
 
@@ -724,8 +724,8 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , '' //font icon if applicable
             , 4096 //data per tick
             , 1024000 //storage
-            , 1.085 //data cost increment
-            , 1.1 //risk increment
+            , 1.075 //data cost increment
+            , 1.13 //risk increment
             , 4e5 //data cost base
         );
 
@@ -736,8 +736,8 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , '' //font icon if applicable
             , 32768 //data per tick
             , 9830400 //storage
-            , 1.0875 //data cost increment
-            , 1.1025 //risk increment
+            , 1.075 //data cost increment
+            , 1.14 //risk increment
             , 4e6 //data cost base
         );
 
@@ -748,8 +748,8 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , '' //font icon if applicable
             , 262144 //data per tick
             , 91750400 //storage
-            , 1.09 //data cost increment
-            , 1.105 //risk increment
+            , 1.075 //data cost increment
+            , 1.15 //risk increment
             , 4e7 //data cost base
         );
 
@@ -760,8 +760,8 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , '' //font icon if applicable
             , 2097152 //data per tick
             , 838860800 //storage
-            , 1.0925 //data cost increment
-            , 1.1075 //risk increment
+            , 1.075 //data cost increment
+            , 1.16 //risk increment
             , 4e8 //data cost base
         );
 
@@ -772,8 +772,8 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
             , '' //font icon if applicable
             , 16777216 //data per tick
             , 7549747200 //storage
-            , 1.095 //data cost increment
-            , 1.11 //risk increment
+            , 1.075 //data cost increment
+            , 1.17 //risk increment
             , 4e9 //data cost base
         );
 
