@@ -234,7 +234,7 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
 
         $scope.scienceItems.add(
             'Active Refactoring' //name
-            , 'Your storage grows naturally by 1% of your DPS, per level, but only when it storage is not full.' //description
+            , 'Your storage grows naturally by 1% of your DPS, per level, but only when storage is not full.' //description
             , 'material-icons' //icon font family
             , 'cloud_upload' //icon font ID
             , 800e4 //cost
