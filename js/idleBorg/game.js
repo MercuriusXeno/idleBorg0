@@ -1000,10 +1000,17 @@ angular.module('gameApp').controller('GameController', ['$scope', '$location', '
     };
 
     $scope.getQuantumTotalLevelForDevice = function (device) {
-        var index = device.id, quantumLevel = 0;
-        for (var i = 8; i > index; i -= 1) {
+        var deviceTier = 0;
+        while (deviceTier < $scope.deviceItems.length) {
+            if ($scope.deviceItems[deviceTier].name === device.name) {
+                break;
+            }
+            deviceTier += 1;
+        }
+        var quantumLevel = 0;
+        for (var i = $scope.deviceItems.length - 1; i > deviceTier; i -= 1) {
             var deviceMeta = $scope.deviceItems[i];
-            quantumLevel += device.upgrades[3].count; //3 is quantum
+            quantumLevel += deviceMeta.upgrades[3].count; //3 is quantum
         }
         return quantumLevel;
     };
